@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Electrical Troll">
+<meta name="theme-color" content="#070b18">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/logo.png">
+<link rel="icon" href="images/logo.png">
+<title>⚡ Electrical Troll</title>
+<link rel="stylesheet" href="css/style.css?v=20260924l">
+</head>
+<body>
+<div id="viewport">
+<div id="stage">
+
+  <!-- ATTRACT MODE -->
+  <section class="screen" id="screen-attract">
+    <div class="attract-bolts" aria-hidden="true">
+      <span>⚡</span><span>⚡</span><span>⚡</span><span>⚡</span><span>⚡</span><span>⚡</span>
+    </div>
+    <h1 class="title huge">⚡ ELECTRICAL TROLL ⚡</h1>
+    <p class="tagline">CAN YOU BEAT THE LEVELS?</p>
+    <p class="touch-to-play">TOUCH TO PLAY</p>
+    <p class="attract-record" id="attract-record"></p>
+  </section>
+
+  <!-- MAIN MENU -->
+  <section class="screen" id="screen-main">
+    <h1 class="title big">⚡ ELECTRICAL TROLL ⚡</h1>
+    <p class="tagline small" id="main-best">BE THE FIRST ON THE SCOREBOARD!</p>
+    <div class="menu">
+      <button class="btn primary" id="btn-play-turn">⚡ PLAY — 10 LIVES</button>
+      <button class="btn" id="btn-scoreboard">🏆 SCOREBOARD</button>
+      <button class="btn ghost" id="btn-main-settings">⚙ SETTINGS</button>
+      <a class="btn ghost small hub-link" href="../index.html">◀ GAME ZONE</a>
+    </div>
+    <!-- Busby greets new players -->
+    <div class="hint-box greet" id="main-greet">
+      <svg class="mascot" id="main-mascot" viewBox="0 0 200 232" aria-hidden="true"></svg>
+      <div class="balloon">Hi! I'm Busby. Welcome to Electrical Troll — where every level is out to get you. Ten lives, ten levels, zero mercy. Are you ready?</div>
+    </div>
+  </section>
+
+  <!-- SCOREBOARD -->
+  <section class="screen" id="screen-scores">
+    <header class="screen-header">
+      <button class="btn small ghost" id="scores-back">◀ BACK</button>
+      <h2 class="title mid">🏆 SCOREBOARD</h2>
+      <div></div>
+    </header>
+    <div class="score-table" id="score-table"></div>
+    <button class="btn primary" id="scores-play">⚡ PLAY A TURN</button>
+  </section>
+
+  <!-- TURN SUMMARY -->
+  <section class="screen" id="screen-summary">
+    <h1 class="title warn" id="summary-title">⏱ TIME'S UP!</h1>
+    <p class="subtitle" id="summary-name">ALEX</p>
+    <div class="hint-box summary-mascot-row">
+      <svg class="mascot" id="summary-mascot" viewBox="0 0 200 232" aria-hidden="true"></svg>
+      <div class="balloon" id="summary-balloon"></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-score" id="summary-score">3,250</div>
+      <div class="summary-rank" id="summary-rank">#1 ON THE SCOREBOARD</div>
+      <div class="summary-stats" id="summary-stats">LEVELS CLEARED: 4 · DEATHS: 7 · BEST TIER: HARD</div>
+    </div>
+    <div class="menu horizontal">
+      <button class="btn primary" id="btn-next-player">👤 NEXT PLAYER</button>
+      <button class="btn" id="btn-summary-scores">🏆 SCOREBOARD</button>
+      <button class="btn ghost" id="btn-summary-menu">MENU</button>
+    </div>
+  </section>
+
+  <!-- NAME ENTRY -->
+  <section class="screen" id="screen-name">
+    <h1 class="title" id="name-title">⚡ WHO IS PLAYING? ⚡</h1>
+    <p class="subtitle" id="name-subtitle">ENTER YOUR NAME FOR THIS TURN</p>
+    <div class="name-chips" id="name-chips"></div>
+    <div class="name-box" id="name-box"><span id="name-display"></span><span class="cursor">|</span></div>
+    <div class="keyboard" id="keyboard"></div>
+    <div class="key-actions">
+      <button class="key wide" data-key="SPACE">SPACE</button>
+      <button class="key wide danger" data-key="DELETE">⌫ DELETE</button>
+      <button class="key wide danger" data-key="CLEAR">CLEAR</button>
+      <button class="key wide go" data-key="ENTER" id="name-enter">START TURN ➜</button>
+    </div>
+    <button class="btn small ghost corner-left" id="name-cancel">✕ CANCEL</button>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="screen" id="screen-settings">
+    <header class="screen-header">
+      <button class="btn small ghost" id="settings-back">◀ BACK</button>
+      <h2 class="title mid">⚙ SETTINGS</h2>
+      <div></div>
+    </header>
+    <div class="settings-info">
+      <div class="row"><span>PLAYERS ON THIS TV</span><strong id="settings-name">0</strong></div>
+      <div class="row"><span>TURNS PLAYED</span><strong id="settings-highest">0</strong></div>
+      <div class="row"><span>HIGH SCORE</span><strong id="settings-deaths">—</strong></div>
+    </div>
+    <div class="menu horizontal">
+      <button class="btn" id="settings-sound">🔊 SOUND: ON</button>
+      <button class="btn" id="settings-fullscreen">⛶ FULLSCREEN</button>
+      <button class="btn danger" id="settings-reset">RESET PROGRESS</button>
+    </div>
+  </section>
+
+  <!-- CONFIRM RESET -->
+  <section class="screen" id="screen-confirm">
+    <h1 class="title warn">⚠ RESET PROGRESS?</h1>
+    <div class="confirm-box">
+      <p>This will erase:</p>
+      <ul>
+        <li>• The scoreboard</li>
+        <li>• All player names & stats</li>
+      </ul>
+    </div>
+    <div class="menu horizontal">
+      <button class="btn primary" id="confirm-cancel">CANCEL</button>
+      <button class="btn danger" id="confirm-reset">RESET</button>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section class="screen" id="screen-game">
+    <canvas id="game-canvas" width="1920" height="1080"></canvas>
+
+    <div id="hud">
+      <div class="hud-left">
+        <div class="hud-level" id="hud-level">LEVEL 1</div>
+        <div class="hud-name" id="hud-levelname">WARM-UP</div>
+      </div>
+      <div class="hud-center">
+        <div class="hud-turn" id="hud-turn"></div>
+        <div class="hud-timer small" id="hud-timer">00:00</div>
+        <div class="hud-mod" id="hud-mod"></div>
+      </div>
+      <div class="hud-right">
+        <div class="hud-player" id="hud-player">ALEX</div>
+        <div class="hud-stats"><span id="hud-deaths">💀 0</span> <span id="hud-score">★ 0</span></div>
+      </div>
+      <button class="btn small ghost" id="btn-pause">☰ MENU</button>
+    </div>
+
+    <div id="level-intro" class="game-overlay light">
+      <div class="intro-level" id="intro-level">LEVEL 1</div>
+      <div class="intro-name" id="intro-name">WARM-UP</div>
+      <div class="intro-player" id="intro-player">ALEX</div>
+      <div class="intro-tags" id="intro-tags"></div>
+      <div class="intro-help hidden" id="intro-help"><span>◀ ▶ MOVE</span><span>▲ JUMP</span><span>REACH THE EXIT DOOR</span><span>10 LIVES · TRAPS LIE</span></div>
+    </div>
+
+    <div id="overlay-toast" class="game-overlay light">
+      <div class="toast-card"><span id="toast-text">⚡ LEVEL CLEARED! +850</span></div>
+    </div>
+
+    <div id="overlay-hint" class="game-overlay light">
+      <div class="hint-box" id="hint-box-live">
+        <svg class="mascot" id="mascot-svg-live" viewBox="0 0 200 232" aria-hidden="true"></svg>
+        <div class="balloon" id="hint-text-live">Hint goes here</div>
+      </div>
+    </div>
+
+    <div id="overlay-death" class="game-overlay light">
+      <div class="death-title">💀 ZAPPED!</div>
+      <div class="death-msg" id="death-msg">Ouch.</div>
+      <div class="hint-box" id="hint-box">
+        <svg class="mascot" id="mascot-svg" viewBox="0 0 200 232" aria-hidden="true"></svg>
+        <div class="balloon" id="hint-text">Hint goes here</div>
+      </div>
+      <div class="death-hint" id="death-hint">TAP TO RETRY</div>
+    </div>
+
+    <div id="overlay-pause" class="game-overlay">
+      <div class="complete-card">
+        <h1 class="title">PAUSED</h1>
+        <div class="menu">
+          <button class="btn primary" id="btn-resume">▶ RESUME</button>
+          <button class="btn" id="btn-restart">↻ RESTART LEVEL</button>
+          <button class="btn" id="btn-pause-select">QUIT TO MENU</button>
+          <button class="btn ghost" id="btn-pause-fullscreen">⛶ FULLSCREEN</button>
+          <a class="btn ghost hub-link" href="../index.html">🏠 MAIN MENU</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="controls">
+      <div class="ctrl-group">
+        <button class="ctrl" data-ctrl="left">◀</button>
+        <button class="ctrl" data-ctrl="right">▶</button>
+      </div>
+      <div class="ctrl-group">
+        <button class="ctrl jump" data-ctrl="jump">▲<span>JUMP</span></button>
+      </div>
+    </div>
+  </section>
+
+  <button class="btn small ghost corner-right" id="btn-fullscreen-global">⛶</button>
+
+  <!-- Music volume: tap the note to open the slider -->
+  <div id="music-ctrl">
+    <button class="btn small ghost" id="music-btn" aria-label="Music volume">🎵</button>
+    <div class="music-pop" id="music-pop">
+      <span class="music-label">MUSIC</span>
+      <input type="range" id="music-slider" min="0" max="100" step="5" value="50">
+      <span class="music-value" id="music-value">50%</span>
+    </div>
+  </div>
+
+  <!-- Company branding: logo + name in the corner of every screen -->
+  <div id="brand" aria-hidden="true">
+    <img src="images/logo.png" alt="Fuji-Haya logo" width="136" height="136">
+    <div class="brand-text"><strong>FUJI-HAYA</strong><span>ELECTRIC CORPORATION OF THE PHILIPPINES</span></div>
+  </div>
+</div>
+</div>
+
+<!-- Phones/tablets held upright: the game is landscape only -->
+<div id="rotate-overlay">
+  <div class="rotate-icon">📱</div>
+  <div class="rotate-text">ROTATE YOUR DEVICE</div>
+  <div class="rotate-sub">This game plays in landscape</div>
+</div>
+
+<script src="js/storage.js?v=20260924l"></script>
+<script src="js/audio.js?v=20260924l"></script>
+<script src="js/levels.js?v=20260924l"></script>
+<script src="js/traps.js?v=20260924l"></script>
+<script src="js/mascot.js?v=20260924l"></script>
+<script src="js/game.js?v=20260924l"></script>
+<script src="js/fx.js?v=20260924l"></script>
+<script src="js/ui.js?v=20260924l"></script>
+</body>
+</html>

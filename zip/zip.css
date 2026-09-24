@@ -1,0 +1,180 @@
+/* 🔌 ZIP — board, HUD and side panel (everything else comes from ../css/style.css) */
+
+/* the shared sheet makes the platformer's game screen a block; Zip lays its screen out as a column */
+#screen-game.active { display: flex; flex-direction: column; align-items: center; }
+#screen-game { justify-content: flex-start; padding: 24px 40px 20px; gap: 12px; }
+/* the board sits a little lower, clear of the HUD */
+.zip-body { margin-top: 34px; }
+/* the logo floats in the upper-left corner on every screen */
+#brand { z-index: 30; }
+#brand img {
+  box-shadow: 0 18px 40px rgba(0,0,0,.55), 0 0 40px rgba(41,224,255,.28);   /* lifted off the page */
+  animation: brandFloat 4.5s ease-in-out infinite;
+}
+#stage[data-screen="main"] #brand img, #stage[data-screen="summary"] #brand img { width: 170px; height: 170px; border-radius: 28px; }
+#stage[data-screen="name"] #brand img, #stage[data-screen="scores"] #brand img { width: 150px; height: 150px; border-radius: 26px; }
+#stage[data-screen="game"] #brand { left: 30px; top: 22px; gap: 16px; }
+#stage[data-screen="game"] #brand img { width: 190px; height: 190px; border-radius: 30px; }
+@keyframes brandFloat {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%      { transform: translateY(-14px) rotate(1deg); }
+}
+@media (prefers-reduced-motion: reduce) { #brand img { animation: none; } }
+
+/* ---- HUD ---- */
+.zip-hud { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: 100%; padding: 0 130px 0 250px; }
+.zip-hud-left { display: flex; flex-direction: column; }
+.hud-level.bump { animation: levelBump .5s ease-out; }
+@keyframes levelBump {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.18); text-shadow: 0 0 26px rgba(255,214,10,.9); }
+  100% { transform: scale(1); }
+}
+.zip-hud-centre { display: flex; flex-direction: column; align-items: center; }
+.zip-hud-right { display: flex; flex-direction: column; align-items: flex-end; margin-right: 0; }
+.zip-hud-centre .hud-timer { font-size: 46px; color: var(--text); letter-spacing: 4px; }
+.zip-hud-centre .hud-timer.ready { color: var(--cyan); text-shadow: 0 0 16px rgba(41,224,255,.6); animation: pulse 1.6s infinite; }
+.zip-hud-centre .hud-timer.urgent { color: var(--red); text-shadow: 0 0 18px rgba(255,61,90,.8); animation: pulse .5s infinite; }
+.fuses { display: flex; gap: 10px; font-size: 64px; line-height: 1; filter: drop-shadow(0 0 12px rgba(255,214,10,.7)); }
+.fuses span { transition: opacity .3s, transform .3s; }
+.fuses span.blown { opacity: .18; transform: scale(.8) rotate(20deg); filter: grayscale(1); }
+.fuses span.just-blown { animation: fuseBlow .6s ease-out; }
+@keyframes fuseBlow {
+  0% { transform: scale(1.5) rotate(0); filter: none; opacity: 1; }
+  30% { transform: scale(1.7) rotate(-12deg); filter: brightness(2.4); }
+  100% { transform: scale(.8) rotate(20deg); filter: grayscale(1); opacity: .18; }
+}
+.fuses.pop span:not(.blown) { animation: fusePop .35s ease-out; }
+@keyframes fusePop { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+
+/* ---- board + side panel ---- */
+.zip-body { display: flex; align-items: center; justify-content: center; gap: 36px; width: 100%; flex: 1; min-height: 0; }
+#board {
+  width: 880px; height: 880px; max-height: 100%; aspect-ratio: 1 / 1;
+  border-radius: 30px; touch-action: none; cursor: crosshair;
+  background: rgba(6, 12, 32, .55);
+  box-shadow: 0 0 0 4px var(--line), 0 20px 60px rgba(0,0,0,.6), inset 0 0 80px rgba(41,224,255,.08);
+}
+.zip-side { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 560px; }
+#bulb { width: 400px; height: 545px; flex: 0 0 auto; margin: -20px 0 -14px; }
+.zip-card, .zip-msg, .zip-actions { width: 100%; }
+.zip-card { background: var(--panel); border: 3px solid var(--line); border-radius: 20px; padding: 10px 20px; }
+.zip-card h3 { font-family: var(--font-display); font-size: 40px; letter-spacing: 3px; color: var(--yellow); margin: 0 0 8px; }
+.zip-card ol { margin: 0; padding-left: 26px; font-size: 21px; font-weight: 700; color: var(--muted); line-height: 1.3; }
+.zip-card li { margin: 3px 0; }
+.zip-card b { color: var(--cyan); }
+.zip-msg {
+  font-family: var(--font-display); font-size: 44px; letter-spacing: 3px; text-align: center; color: var(--cyan);
+  min-height: 60px; text-shadow: 0 0 14px rgba(41,224,255,.5); transition: color .2s;
+}
+.zip-msg.bad { color: var(--red); text-shadow: 0 0 14px rgba(255,61,90,.7); animation: shake .35s; }
+.zip-msg.fresh { animation: msgIn .28s ease-out; }
+@keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.zip-msg.good { color: var(--green); text-shadow: 0 0 14px rgba(77,255,136,.7); }
+.zip-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+/* three buttons share the row (reset / quit / back to the game zone), so they run a little smaller */
+#stage .zip-actions .btn.small { font-size: 28px; padding: 8px 16px; min-height: 66px; min-width: 0; border-width: 3px; }
+
+#overlay-toast { justify-content: center; padding-top: 0; }
+#overlay-toast .toast-card { animation: toastIn .45s cubic-bezier(.2,1.5,.45,1); }
+@keyframes toastIn {
+  0% { opacity: 0; transform: scale(.6) translateY(30px); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* ---- confirmation dialog ---- */
+.modal { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(3, 6, 20, .85); z-index: 60; }
+.modal.hidden { display: none; }
+.modal-card {
+  background: var(--panel); border: 5px solid var(--red); border-radius: 36px; padding: 40px 70px;
+  text-align: center; box-shadow: 0 0 60px rgba(255,61,90,.35); max-width: 1400px;
+  display: flex; flex-direction: column; align-items: center; gap: 24px;
+}
+.modal-text { font-size: 34px; font-weight: 700; color: var(--muted); margin: 0; max-width: 1100px; line-height: 1.35; }
+#stage.portrait .modal-text { font-size: 52px; }
+#stage.portrait .modal-card { padding: 60px 80px; gap: 40px; }
+
+/* ---- main / summary tweaks ---- */
+#screen-main .tagline { font-size: 46px; }
+/* Busby sits in the bottom-left corner; the menu stays centred on the stage */
+#screen-main #main-greet { left: 40px; bottom: 40px; }
+#screen-main #main-greet .balloon { max-width: 430px; font-size: 26px; line-height: 1.3; margin-bottom: 90px; }
+#btn-zip { text-decoration: none; }
+.summary-stats { font-size: 34px; font-weight: 900; color: var(--muted); margin-top: 12px; }
+.score-unit { display: block; font-family: var(--font-display); font-size: 54px; letter-spacing: 6px; color: var(--cyan); text-shadow: 0 0 14px rgba(41,224,255,.5); margin-top: -18px; }
+#stage.portrait .score-unit { font-size: 72px; }
+
+/* ---- small screens (phones / tablets): the stage is scaled, so bump the touch targets ---- */
+#stage.compact .zip-side { width: 620px; }
+#stage.compact #bulb { width: 360px; height: 491px; }
+#stage.compact .zip-card ol { font-size: 26px; }
+#stage.compact .zip-msg { font-size: 50px; }
+#stage.compact .fuses { font-size: 76px; }
+#stage.compact .zip-hud { padding-left: 280px; }
+#stage.compact[data-screen="game"] #brand img { width: 215px; height: 215px; }
+
+
+/* ==== PORTRAIT: board on top, bulb + instructions underneath ==== */
+#stage.portrait #screen-game { padding: 20px 40px 30px; gap: 0; }
+#stage.portrait .zip-hud { padding: 0 40px 0 250px; }
+#stage.portrait .zip-body { flex-direction: column; justify-content: center; gap: 60px; margin-top: 20px; }
+/* the board takes whatever height is left once the panel has its share, and stays square */
+#stage.portrait #board { flex: 1 1 auto; width: auto; height: auto; min-height: 0; max-width: 1760px; max-height: 1760px; border-radius: 40px; }
+#stage.portrait .zip-side { flex: 0 0 auto; }
+/* the panel becomes a row: bulb on the left, the words on the right */
+#stage.portrait .zip-side {
+  width: 1760px; display: grid; gap: 10px 46px; align-items: center;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "bulb card" "bulb msg" "bulb actions";
+}
+#stage.portrait #bulb { grid-area: bulb; width: 620px; height: 845px; margin: 0; }
+#stage.portrait .zip-card { grid-area: card; padding: 18px 34px; border-radius: 28px; }
+#stage.portrait .zip-card ol { font-size: 46px; padding-left: 50px; line-height: 1.35; }
+#stage.portrait .zip-card li { margin: 8px 0; }
+#stage.portrait .zip-msg { grid-area: msg; font-size: 76px; min-height: 96px; }
+#stage.portrait .zip-actions { grid-area: actions; gap: 30px; }
+#stage.portrait .zip-actions .btn.small { font-size: 44px; min-height: 104px; padding: 10px 26px; border-radius: 22px; }
+/* HUD and menus scale up with the taller stage */
+#stage.portrait .hud-level { font-size: 76px; }
+#stage.portrait .hud-name { font-size: 40px; }
+#stage.portrait .fuses { font-size: 96px; }
+#stage.portrait .zip-hud-centre .hud-timer { font-size: 70px; }
+#stage.portrait .hud-player { font-size: 60px; }
+#stage.portrait .hud-stats { font-size: 44px; }
+#stage.portrait[data-screen="game"] #brand img { width: 230px; height: 230px; }
+#stage.portrait .title.big { font-size: 190px; }
+#stage.portrait .tagline { font-size: 72px; }
+#stage.portrait .tagline.small { font-size: 56px; }
+#stage.portrait .btn { font-size: 76px; min-height: 160px; padding: 20px 70px; border-radius: 34px; }
+#stage.portrait .btn.small { font-size: 52px; min-height: 110px; }
+#stage.portrait .menu { gap: 44px; }
+/* Busby's greeting moves under the menu instead of hugging a corner */
+#stage.portrait #main-greet { position: static; margin-top: 60px; align-items: flex-end; }
+#stage.portrait #main-greet .mascot { width: 320px; height: 370px; }
+#stage.portrait #main-greet .balloon { max-width: 1100px; font-size: 52px; margin-bottom: 150px; }
+/* keyboard, scoreboard and summary */
+#stage.portrait .key { font-size: 88px; height: 170px; min-width: 150px; padding: 0 28px; }
+#stage.portrait .key.wide { width: auto; min-width: 380px; }
+#stage.portrait .key.go { min-width: 900px; }
+#stage.portrait .kb-row { gap: 20px; }
+#stage.portrait .keyboard { gap: 22px; }
+#stage.portrait .name-box { font-size: 110px; min-width: 1200px; }
+#stage.portrait .screen-header, #stage.portrait .score-table { width: 1760px; }
+#stage.portrait .score-row { grid-template-columns: 150px 1fr 320px 300px; font-size: 56px; }
+#stage.portrait .score-row .rank, #stage.portrait .score-row .name, #stage.portrait .score-row .pts { font-size: 68px; }
+#stage.portrait .score-row .meta { font-size: 44px; }
+#stage.portrait .summary-card { padding: 30px 80px; }
+#stage.portrait .summary-score { font-size: 240px; }
+#stage.portrait .summary-rank { font-size: 76px; }
+#stage.portrait .summary-stats { font-size: 48px; }
+#stage.portrait .summary-mascot-row .mascot { width: 300px; height: 347px; }
+#stage.portrait .summary-mascot-row .balloon { font-size: 52px; max-width: 1200px; }
+#stage.portrait .menu.horizontal { gap: 30px; }
+#stage.portrait .toast-card { font-size: 120px; }
+
+/* very tall screens (phones upright): give the board even more room */
+#stage.tall .zip-body { gap: 60px; }
+#stage.tall #bulb { width: 700px; height: 954px; }
+
+/* link back to the game-zone landing page */
+.hub-link { text-decoration: none; display: flex; align-items: center; justify-content: center; }

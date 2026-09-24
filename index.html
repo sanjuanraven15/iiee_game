@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fuji-Haya Games">
+<meta name="theme-color" content="#070b18">
+<title>⚡ Fuji-Haya Game Zone</title>
+<link rel="manifest" href="hub-manifest.json">
+<link rel="icon" href="electric_troll/images/logo.png">
+<link rel="apple-touch-icon" href="electric_troll/images/logo.png">
+<link rel="stylesheet" href="hub.css?v=20260924i">
+</head>
+<body>
+
+<header class="hub-top">
+  <div class="brand">
+    <img class="brand-logo" src="electric_troll/images/logo.png" alt="Fuji-Haya" width="136" height="136">
+    <div class="brand-text">
+      <strong>FUJI-HAYA</strong>
+      <span>ELECTRIC CORPORATION OF THE PHILIPPINES</span>
+    </div>
+  </div>
+</header>
+
+<main class="hub">
+  <h1 class="hub-title">⚡ GAME ZONE ⚡</h1>
+  <p class="hub-sub">PICK A GAME</p>
+
+  <div class="tiles">
+
+    <!-- ===================== ELECTRICAL TROLL ===================== -->
+    <a class="tile troll" href="electric_troll/index.html">
+      <div class="screen">
+        <svg viewBox="0 0 400 240" aria-hidden="true">
+          <defs>
+            <linearGradient id="trollSky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#101d4e"/><stop offset="1" stop-color="#070d24"/>
+            </linearGradient>
+            <linearGradient id="trollGround" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#22366a"/><stop offset="1" stop-color="#101a38"/>
+            </linearGradient>
+          </defs>
+          <rect width="400" height="240" fill="url(#trollSky)"/>
+          <g stroke="#2a63c9" stroke-opacity=".28" stroke-width="1">
+            <path d="M0 40h400M0 80h400M0 120h400M0 160h400"/>
+            <path d="M60 0v190M140 0v190M220 0v190M300 0v190M370 0v190"/>
+          </g>
+          <!-- pylons -->
+          <g stroke="#3f7fd6" stroke-opacity=".5" stroke-width="2" fill="none">
+            <path d="M80 190 L104 70 L128 190 M86 160h36 M92 128h24"/>
+            <path d="M262 190 L286 70 L310 190 M268 160h36 M274 128h24"/>
+          </g>
+          <!-- exit door -->
+          <g class="troll-exit">
+            <rect x="338" y="132" width="40" height="58" rx="5" fill="#0d2b1a" stroke="#4dff88" stroke-width="3"/>
+            <rect x="336" y="120" width="44" height="14" rx="4" fill="#07170f" stroke="#4dff88" stroke-width="2"/>
+            <text x="358" y="131" text-anchor="middle" font-size="9" fill="#4dff88" font-family="Bangers, Impact, sans-serif">EXIT</text>
+          </g>
+          <!-- ground -->
+          <rect x="0" y="190" width="400" height="50" fill="url(#trollGround)"/>
+          <rect x="0" y="188" width="400" height="3" fill="#4b8ae0" opacity=".6"/>
+          <!-- spikes -->
+          <path d="M150 190 l10 -18 l10 18 z M170 190 l10 -18 l10 18 z" fill="#ff3d5a" opacity=".9"/>
+          <!-- sign -->
+          <g>
+            <rect x="52" y="152" width="58" height="20" rx="3" fill="#caa15c" stroke="#7d5f2c" stroke-width="2"/>
+            <rect x="78" y="172" width="5" height="18" fill="#7d5f2c"/>
+            <text x="81" y="166" text-anchor="middle" font-size="8" fill="#3a2a10" font-family="Bangers, Impact, sans-serif">TRUST ME</text>
+          </g>
+          <!-- falling bulb -->
+          <g class="troll-bulb">
+            <line x1="250" y1="0" x2="250" y2="52" stroke="#8b9bc4" stroke-width="2"/>
+            <circle cx="250" cy="62" r="11" fill="#ffd60a" stroke="#b38600" stroke-width="2"/>
+            <rect x="245" y="72" width="10" height="7" rx="2" fill="#9aa3ba"/>
+          </g>
+          <g class="troll-spark">
+            <path d="M244 184l7-12 1 8 7-10-3 12 8-4-12 12z" fill="#ffd60a"/>
+          </g>
+          <!-- Busby -->
+          <g class="troll-busby">
+            <g transform="translate(-14,-40) scale(.30)">
+              <rect x="66" y="196" width="28" height="30" rx="8" fill="#1d2a6b"/>
+              <rect x="106" y="196" width="28" height="30" rx="8" fill="#1d2a6b"/>
+              <rect x="54" y="140" width="92" height="70" rx="24" fill="#6aa9e9" stroke="#3f7fc4" stroke-width="3"/>
+              <path d="M62 146h22v62H62z M116 146h22v62h-22z" fill="#c6ff3a" stroke="#8fc700" stroke-width="2.5"/>
+              <circle cx="100" cy="96" r="58" fill="#ffe3c9" stroke="#e2b896" stroke-width="3"/>
+              <path d="M40 80a60 54 0 0 1 120 0z" fill="#fff" stroke="#c5cad3" stroke-width="4"/>
+              <rect x="28" y="74" width="144" height="16" rx="8" fill="#fff" stroke="#c5cad3" stroke-width="3"/>
+              <rect x="58" y="96" width="36" height="24" rx="8" fill="rgba(200,230,255,.35)" stroke="#1a1a1a" stroke-width="5"/>
+              <rect x="106" y="96" width="36" height="24" rx="8" fill="rgba(200,230,255,.35)" stroke="#1a1a1a" stroke-width="5"/>
+              <path d="M94 106h12" stroke="#1a1a1a" stroke-width="5"/>
+              <circle cx="76" cy="108" r="8" fill="#3b2a1a"/><circle cx="124" cy="108" r="8" fill="#3b2a1a"/>
+              <path d="M88 132q12 12 24 0" stroke="#2E2E2E" stroke-width="4" fill="none" stroke-linecap="round"/>
+            </g>
+          </g>
+        </svg>
+        <span class="screen-badge">RAGE BAIT</span>
+      </div>
+      <div class="tile-body">
+        <h2>⚡ ELECTRICAL TROLL</h2>
+        <p>A platformer built to trick you. Traps move, signs lie, and the exit runs away.</p>
+        <div class="chips"><span>10 LIVES</span><span>10 LEVELS</span><span>NEVER THE SAME</span></div>
+        <span class="play">PLAY ➜</span>
+      </div>
+    </a>
+
+    <!-- ===================== ZIP ===================== -->
+    <a class="tile zip" href="zip/index.html">
+      <div class="screen">
+        <svg viewBox="0 0 400 240" aria-hidden="true">
+          <defs>
+            <linearGradient id="zipBg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#0d1836"/><stop offset="1" stop-color="#060b1d"/>
+            </linearGradient>
+          </defs>
+          <rect width="400" height="240" fill="url(#zipBg)"/>
+          <!-- board -->
+          <g transform="translate(36,26)">
+            <rect x="-10" y="-10" width="220" height="200" rx="16" fill="rgba(6,12,32,.6)" stroke="#24365f" stroke-width="3"/>
+            <g fill="rgba(12,22,52,.9)" stroke="#24365f" stroke-width="2">
+              <rect x="0" y="0" width="42" height="42" rx="8"/><rect x="48" y="0" width="42" height="42" rx="8"/><rect x="96" y="0" width="42" height="42" rx="8"/><rect x="144" y="0" width="42" height="42" rx="8"/>
+              <rect x="0" y="46" width="42" height="42" rx="8"/><rect x="48" y="46" width="42" height="42" rx="8"/><rect x="96" y="46" width="42" height="42" rx="8"/><rect x="144" y="46" width="42" height="42" rx="8"/>
+              <rect x="0" y="92" width="42" height="42" rx="8"/><rect x="48" y="92" width="42" height="42" rx="8"/><rect x="96" y="92" width="42" height="42" rx="8"/><rect x="144" y="92" width="42" height="42" rx="8"/>
+              <rect x="0" y="138" width="42" height="42" rx="8"/><rect x="48" y="138" width="42" height="42" rx="8"/><rect x="96" y="138" width="42" height="42" rx="8"/><rect x="144" y="138" width="42" height="42" rx="8"/>
+            </g>
+            <!-- the wire drawing itself -->
+            <polyline class="zip-wire-glow" points="21,21 21,67 69,67 69,21 117,21 117,67 117,113 69,113 21,113 21,159 69,159 117,159 165,159 165,113 165,67 165,21"
+              fill="none" stroke="#29e0ff" stroke-opacity=".4" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline class="zip-wire" points="21,21 21,67 69,67 69,21 117,21 117,67 117,113 69,113 21,113 21,159 69,159 117,159 165,159 165,113 165,67 165,21"
+              fill="none" stroke="#9ff5ff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- terminals -->
+            <g font-family="Bangers, Impact, sans-serif" font-size="17" text-anchor="middle">
+              <circle cx="21" cy="21" r="13" fill="#ffd60a" stroke="#b38600" stroke-width="3"/><text x="21" y="27" fill="#0b1020">1</text>
+              <circle cx="117" cy="67" r="13" fill="#141d38" stroke="#4b64a3" stroke-width="3"/><text x="117" y="73" fill="#f4f7ff">2</text>
+              <circle cx="21" cy="159" r="13" fill="#141d38" stroke="#4b64a3" stroke-width="3"/><text x="21" y="165" fill="#f4f7ff">3</text>
+              <circle cx="165" cy="21" r="13" fill="#141d38" stroke="#4b64a3" stroke-width="3"/><text x="165" y="27" fill="#f4f7ff">4</text>
+            </g>
+          </g>
+          <!-- the bulb that lights when the circuit closes -->
+          <g class="zip-lamp" transform="translate(320,96)">
+            <circle class="zip-halo" cx="0" cy="0" r="46" fill="#ffd166" opacity="0"/>
+            <line x1="0" y1="-74" x2="0" y2="-40" stroke="#3a4a78" stroke-width="4"/>
+            <circle class="zip-glass" cx="0" cy="0" r="30" fill="rgba(190,225,255,.18)" stroke="rgba(210,235,255,.6)" stroke-width="3"/>
+            <path class="zip-filament" d="M-9 8 l4 -12 l5 12 l5 -12 l4 12" fill="none" stroke="#6b5a3a" stroke-width="4" stroke-linecap="round"/>
+            <rect x="-11" y="28" width="22" height="20" rx="4" fill="#9aa3ba"/>
+            <rect x="-11" y="34" width="22" height="3" fill="#63708f"/><rect x="-11" y="40" width="22" height="3" fill="#63708f"/>
+          </g>
+        </svg>
+        <span class="screen-badge">PUZZLE</span>
+      </div>
+      <div class="tile-body">
+        <h2>🔌 ZIP</h2>
+        <p>One wire from 1 to the last terminal — every number in order, every cell filled.</p>
+        <div class="chips"><span>2 MINUTES</span><span>3 FUSES</span><span>ENDLESS LEVELS</span></div>
+        <span class="play">PLAY ➜</span>
+      </div>
+    </a>
+
+    <!-- ===================== LIGHT IT UP ===================== -->
+    <a class="tile light" href="light_it_up/index.html">
+      <div class="screen">
+        <svg viewBox="0 0 400 240" aria-hidden="true">
+          <defs>
+            <linearGradient id="litBg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#132152"/><stop offset="1" stop-color="#080f28"/>
+            </linearGradient>
+          </defs>
+          <rect width="400" height="240" fill="url(#litBg)"/>
+          <g stroke="#3f7fd6" stroke-opacity=".22" stroke-width="1">
+            <path d="M0 60h400M0 120h400M0 180h400M100 0v240M200 0v240M300 0v240"/>
+          </g>
+          <!-- battery -->
+          <g transform="translate(26,86)">
+            <rect x="0" y="0" width="54" height="68" rx="8" fill="#16224b" stroke="#4b64a3" stroke-width="3"/>
+            <rect x="10" y="-9" width="14" height="10" rx="2" fill="#ffd60a"/>
+            <rect x="32" y="-9" width="14" height="10" rx="2" fill="#8b9bc4"/>
+            <text x="17" y="30" font-size="20" fill="#ffd60a" font-family="Bangers, Impact, sans-serif">+</text>
+            <text x="34" y="30" font-size="20" fill="#8b9bc4" font-family="Bangers, Impact, sans-serif">−</text>
+            <text x="27" y="56" font-size="11" fill="#8b9bc4" text-anchor="middle" font-family="Bangers, Impact, sans-serif">12V</text>
+          </g>
+          <!-- posts -->
+          <g fill="#ffd60a">
+            <circle cx="104" cy="92" r="7"/><circle cx="104" cy="150" r="7"/>
+            <circle cx="196" cy="92" r="7"/><circle cx="196" cy="150" r="7"/>
+            <circle cx="288" cy="120" r="7"/>
+          </g>
+          <!-- cable being dragged into place -->
+          <path class="lit-cable" d="M104 92 H196" fill="none" stroke="#ffd60a" stroke-width="7" stroke-linecap="round"/>
+          <path class="lit-cable lit-cable2" d="M196 150 H288 V127" fill="none" stroke="#ffd60a" stroke-width="7" stroke-linecap="round"/>
+          <circle class="lit-finger" cx="104" cy="92" r="9" fill="none" stroke="#fff" stroke-width="3" opacity="0"/>
+          <!-- switch -->
+          <g transform="translate(150,150)">
+            <rect x="-22" y="-16" width="44" height="32" rx="8" fill="#16224b" stroke="#4b64a3" stroke-width="3"/>
+            <circle cx="-14" cy="0" r="4" fill="#8b9bc4"/><circle cx="14" cy="0" r="4" fill="#8b9bc4"/>
+            <line class="lit-switch" x1="-14" y1="0" x2="12" y2="-12" stroke="#ffd60a" stroke-width="5" stroke-linecap="round"/>
+          </g>
+          <!-- bulb -->
+          <g class="lit-lamp" transform="translate(288,120)">
+            <circle class="lit-halo" cx="0" cy="-30" r="44" fill="#ffd166" opacity="0"/>
+            <circle class="lit-glass" cx="0" cy="-30" r="26" fill="rgba(255,240,190,.12)" stroke="#ffe9a8" stroke-width="3"/>
+            <path class="lit-filament" d="M-8 -22 l4 -12 l4 12 l4 -12" fill="none" stroke="#6b5a3a" stroke-width="3.5" stroke-linecap="round"/>
+            <rect x="-9" y="-6" width="18" height="16" rx="3" fill="#9aa3ba"/>
+            <g class="lit-rays" stroke="#ffe9a8" stroke-width="4" stroke-linecap="round" opacity="0">
+              <path d="M0 -74v-12M34 -64l9-8M-34 -64l-9-8M46 -30h12M-46 -30h-12"/>
+            </g>
+          </g>
+        </svg>
+        <span class="screen-badge">WIRING</span>
+      </div>
+      <div class="tile-body">
+        <h2>💡 LIGHT IT UP!</h2>
+        <p>Drag cables between the dots, flip the switches, light every bulb — without shorting it.</p>
+        <div class="chips"><span>2 MINUTES</span><span>DRAG &amp; TAP</span><span>NO SHORT CIRCUITS</span></div>
+        <span class="play">PLAY ➜</span>
+      </div>
+    </a>
+
+  </div>
+
+  <p class="hub-foot">TOUCH A TILE TO PLAY · ARROW KEYS + ENTER ALSO WORK</p>
+</main>
+
+<script>
+/* arrow keys / TV remote: move between tiles, Enter opens the focused one */
+(function () {
+  const tiles = [...document.querySelectorAll('.tile')];
+  tiles.forEach((t, i) => { t.tabIndex = 0; t.style.setProperty('--i', i); });
+  document.addEventListener('keydown', e => {
+    const k = e.key;
+    if (!/^Arrow(Left|Right|Up|Down)$/.test(k)) return;
+    e.preventDefault();
+    const at = tiles.indexOf(document.activeElement);
+    const step = (k === 'ArrowRight' || k === 'ArrowDown') ? 1 : -1;
+    const next = at < 0 ? 0 : (at + step + tiles.length) % tiles.length;
+    tiles[next].focus();
+  });
+  /* offline: the hub keeps its own small cache; each game caches itself */
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener('load', async () => {
+      try {
+        const here = new URL('./', location.href).href;
+        for (const r of await navigator.serviceWorker.getRegistrations())
+          if (r.scope === here && !/hub-sw\.js$/.test(r.active && r.active.scriptURL || '')) await r.unregister();
+        await navigator.serviceWorker.register('hub-sw.js', { updateViaCache: 'none' });
+      } catch (e) { /* offline support is a bonus, never a blocker */ }
+    });
+  }
+})();
+</script>
+</body>
+</html>

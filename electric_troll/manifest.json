@@ -1,0 +1,15 @@
+{
+  "name": "Electrical Troll",
+  "short_name": "Electrical Troll",
+  "description": "Fuji-Haya Electric touchscreen troll platformer. 10 lives, 10 levels, unpredictable traps.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#070b18",
+  "theme_color": "#070b18",
+  "icons": [
+    { "src": "images/logo.png", "sizes": "2886x2885", "type": "image/png", "purpose": "any" },
+    { "src": "images/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

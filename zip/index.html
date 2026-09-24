@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Zip">
+<meta name="theme-color" content="#070b18">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="images/logo.png">
+<link rel="icon" href="images/logo.png">
+<title>🔌 Zip — Electrical Circuit Puzzle</title>
+<link rel="stylesheet" href="css/style.css?v=20260924i">
+<link rel="stylesheet" href="zip.css?v=20260924i">
+</head>
+<body>
+<div id="viewport">
+<div id="stage">
+
+  <!-- MAIN MENU -->
+  <section class="screen" id="screen-main">
+    <h1 class="title big">🔌 ZIP</h1>
+    <p class="tagline">HOW MANY CIRCUITS CAN YOU CLOSE IN 2 MINUTES?</p>
+    <p class="tagline small" id="main-best">BE THE FIRST ON THE SCOREBOARD!</p>
+    <div class="menu">
+      <button class="btn primary" id="btn-play">⚡ PLAY — 2 MINUTES</button>
+      <button class="btn" id="btn-scoreboard">🏆 SCOREBOARD</button>
+      <a class="btn ghost small hub-link" href="../index.html">◀ GAME ZONE</a>
+    </div>
+    <div class="hint-box greet" id="main-greet">
+      <svg class="mascot" id="main-mascot" viewBox="0 0 200 232" aria-hidden="true"></svg>
+      <div class="balloon">Hi, I am Busby! One wire from 1 to the last terminal — every number in order, every cell filled. You get two minutes and three fuses; every circuit you close counts. Ready?</div>
+    </div>
+  </section>
+
+  <!-- NAME ENTRY -->
+  <section class="screen" id="screen-name">
+    <h1 class="title mid">⚡ WHO IS PLAYING? ⚡</h1>
+    <p class="subtitle">ENTER YOUR NAME FOR THIS TURN</p>
+    <div class="name-box" id="name-box"><span id="name-display"></span><span class="cursor">|</span></div>
+    <div class="keyboard" id="keyboard"></div>
+    <div class="key-actions">
+      <button class="key wide" data-key="SPACE">SPACE</button>
+      <button class="key wide danger" data-key="DELETE">⌫ DELETE</button>
+      <button class="key wide danger" data-key="CLEAR">CLEAR</button>
+      <button class="key wide go" data-key="ENTER" id="name-enter">START ➜</button>
+    </div>
+    <button class="btn small ghost corner-left" id="name-cancel">✕ CANCEL</button>
+  </section>
+
+  <!-- SCOREBOARD -->
+  <section class="screen" id="screen-scores">
+    <header class="screen-header">
+      <button class="btn small ghost" id="scores-back">◀ BACK</button>
+      <h2 class="title mid">🏆 SCOREBOARD</h2>
+      <div></div>
+    </header>
+    <div class="score-table" id="score-table"></div>
+    <div class="menu horizontal">
+      <button class="btn primary" id="scores-play">⚡ PLAY</button>
+      <button class="btn ghost" id="scores-reset">🗑 RESET SCOREBOARD</button>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section class="screen" id="screen-game">
+    <div class="zip-hud">
+      <div class="zip-hud-left">
+        <div class="hud-level" id="hud-level">LEVEL 1</div>
+        <div class="hud-name" id="hud-size">4 × 4 · 4 TERMINALS</div>
+      </div>
+      <div class="zip-hud-centre">
+        <div class="fuses" id="fuses"><span>⚡</span><span>⚡</span><span>⚡</span></div>
+        <div class="hud-timer small" id="hud-timer">00:00</div>
+      </div>
+      <div class="zip-hud-right">
+        <div class="hud-player" id="hud-player">PLAYER</div>
+        <div class="hud-stats"><span id="hud-score">★ 0</span></div>
+      </div>
+    </div>
+    <div class="zip-body">
+      <canvas id="board" width="900" height="900"></canvas>
+      <aside class="zip-side">
+        <canvas id="bulb" width="440" height="600" aria-hidden="true"></canvas>
+        <div class="zip-card">
+          <ol>
+            <li>Start at <b>1</b> — drag, or use the <b>arrow keys</b>.</li>
+            <li>Hit <b>2, 3, 4…</b> in order, fill <b>every</b> cell.</li>
+            <li>Tap a number to <b>rewind</b> the wire back to it.</li>
+            <li>Undo is <b>free</b>. Only a <b>wrong terminal</b> blows a fuse.</li>
+            <li><b>2 minutes</b> per turn, starting on your first move.</li>
+          </ol>
+        </div>
+        <div class="zip-msg" id="zip-msg">DRAW THE CIRCUIT</div>
+        <div class="zip-actions">
+          <button class="btn small ghost" id="btn-reset">↺ RESET WIRE</button>
+          <button class="btn small ghost" id="btn-quit">✕ QUIT</button>
+          <a class="btn small ghost hub-link" href="../index.html">🏠 MENU</a>
+        </div>
+      </aside>
+    </div>
+    <div id="overlay-toast" class="game-overlay light"><div class="toast-card" id="toast-text">⚡ POWER ON!</div></div>
+  </section>
+
+  <!-- SUMMARY -->
+  <section class="screen" id="screen-summary">
+    <h1 class="title warn" id="summary-title">💥 ALL FUSES BLOWN</h1>
+    <p class="subtitle" id="summary-name">PLAYER</p>
+    <div class="hint-box summary-mascot-row">
+      <svg class="mascot" id="summary-mascot" viewBox="0 0 200 232" aria-hidden="true"></svg>
+      <div class="balloon" id="summary-balloon">The circuit got you this time.</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-score" id="summary-score">0</div>
+      <div class="summary-rank" id="summary-rank"></div>
+      <div class="summary-stats" id="summary-stats"></div>
+    </div>
+    <div class="menu horizontal">
+      <button class="btn primary" id="summary-next">👤 NEXT PLAYER</button>
+      <button class="btn" id="summary-scores">🏆 SCOREBOARD</button>
+      <button class="btn ghost" id="summary-menu">MENU</button>
+      <a class="btn ghost hub-link" href="../index.html">🏠 GAME ZONE</a>
+    </div>
+  </section>
+
+  <!-- confirmation for anything that throws saved data away -->
+  <div id="modal-confirm" class="modal hidden">
+    <div class="modal-card">
+      <h2 class="title mid">🗑 RESET SCOREBOARD?</h2>
+      <p class="modal-text">Every score saved on this device will be deleted. This cannot be undone.</p>
+      <div class="menu horizontal">
+        <button class="btn danger" id="confirm-yes">YES, CLEAR IT</button>
+        <button class="btn ghost" id="confirm-no">✕ CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="brand" aria-hidden="true">
+    <img src="images/logo.png" alt="Fuji-Haya logo" width="136" height="136">
+    <div class="brand-text"><strong>FUJI-HAYA</strong><span>ELECTRIC CORPORATION OF THE PHILIPPINES</span></div>
+  </div>
+</div>
+</div>
+
+<div id="rotate-overlay">
+  <div class="rotate-icon">📱</div>
+  <div class="rotate-text">ROTATE YOUR DEVICE</div>
+  <div class="rotate-sub">This game plays in landscape</div>
+</div>
+
+<script src="js/mascot.js?v=20260924i"></script>
+<script src="zip.js?v=20260924i"></script>
+</body>
+</html>

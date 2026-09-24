@@ -1,0 +1,324 @@
+/* ⚡ FUJI-HAYA GAME ZONE — the landing page that picks one of the three games.
+   Same palette and self-hosted fonts as the games, so it works offline too. */
+
+@font-face { font-family: 'Bangers'; font-style: normal; font-weight: 400; font-display: swap; src: url('electric_troll/fonts/bangers-latin.woff2') format('woff2'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-weight: 700 900; font-display: swap; src: url('electric_troll/fonts/nunito-latin.woff2') format('woff2'); }
+
+:root {
+  --bg: #070b18;
+  --panel: rgba(16, 26, 51, 0.92);
+  --line: #24365f;
+  --yellow: #ffd60a;
+  --cyan: #29e0ff;
+  --magenta: #ff2fa0;
+  --green: #4dff88;
+  --red: #ff3d5a;
+  --text: #f4f7ff;
+  --muted: #8b9bc4;
+  --font-display: 'Bangers', Impact, 'Arial Black', sans-serif;
+  --font-body: 'Nunito', 'Segoe UI', Arial, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; padding: 0; min-height: 100%;
+  background:
+    linear-gradient(135deg, rgba(8, 18, 92, .82) 0%, rgba(5, 10, 48, .88) 55%, rgba(3, 6, 24, .94) 100%),
+    url('electric_troll/images/cover.jpg') center / cover no-repeat fixed;
+  color: var(--text); font-family: var(--font-body);
+  overscroll-behavior: none;
+}
+
+/* ---------- header ---------- */
+.hub-top { padding: 16px 34px 0; }
+.brand { display: flex; align-items: center; gap: 20px; }
+.brand-logo {
+  width: 80px; height: 80px; border-radius: 20px; background: #fff;
+  box-shadow: 0 18px 40px rgba(0,0,0,.55), 0 0 40px rgba(41,224,255,.28);
+  animation: brandFloat 4.5s ease-in-out infinite;
+}
+@keyframes brandFloat {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%      { transform: translateY(-12px) rotate(1deg); }
+}
+.brand-text { display: flex; flex-direction: column; gap: 4px; }
+.brand-text strong { font-weight: 900; font-size: 34px; letter-spacing: 4px; text-shadow: 0 2px 10px rgba(0,0,0,.6); }
+.brand-text span { font-weight: 700; font-size: 15px; letter-spacing: 4px; color: #c9d3f5; }
+
+/* ---------- headings ---------- */
+.hub { padding: 6px 34px 22px; max-width: 1900px; margin: 0 auto; }
+/* on short screens the previews give up height first, so the three tiles still fit */
+@media (orientation: landscape) and (max-height: 900px) {
+  .screen { aspect-ratio: 2.7 / 1; }
+  .hub-title { font-size: clamp(38px, 4.4vw, 74px); }
+  .hub-sub { font-size: clamp(18px, 1.7vw, 30px); margin-bottom: 12px; }
+  .tile-body p { font-size: 15px; }
+  .tile-body { padding: 10px 18px 14px; gap: 6px; }
+  .hub-foot { margin-top: 10px; }
+  .tile-body h2 { font-size: clamp(26px, 1.9vw, 34px); }
+  .brand-logo { width: 64px; height: 64px; }
+  .brand-text strong { font-size: 26px; }
+}
+@media (orientation: landscape) and (max-height: 700px) {
+  .screen { aspect-ratio: 3.1 / 1; }
+  .chips { display: none; }
+}
+.hub-title {
+  font-family: var(--font-display); font-size: clamp(44px, 5.4vw, 96px); letter-spacing: 6px;
+  color: var(--yellow); text-align: center; margin: 8px 0 0;
+  text-shadow: 0 0 26px rgba(255,214,10,.55), 0 8px 0 #7a5c00;
+}
+.hub-sub {
+  font-family: var(--font-display); font-size: clamp(20px, 2vw, 36px); letter-spacing: 6px;
+  color: var(--cyan); text-align: center; margin: 0 0 18px; text-shadow: 0 0 16px rgba(41,224,255,.6);
+}
+.hub-foot { text-align: center; color: var(--muted); font-weight: 900; letter-spacing: 3px; font-size: 14px; margin: 14px 0 0; }
+
+/* ---------- tiles ---------- */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+.tile {
+  display: flex; flex-direction: column; text-decoration: none; color: inherit;
+  background: var(--panel); border: 4px solid var(--line); border-radius: 30px; overflow: hidden;
+  box-shadow: 0 22px 50px rgba(0,0,0,.55);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  animation: tileIn .5s ease-out backwards; animation-delay: calc(var(--i, 0) * .09s);
+}
+@keyframes tileIn { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+.tile:hover, .tile:focus-visible { transform: translateY(-8px); outline: none; }
+.tile.troll:hover, .tile.troll:focus-visible { border-color: var(--magenta); box-shadow: 0 26px 60px rgba(0,0,0,.6), 0 0 44px rgba(255,47,160,.35); }
+.tile.zip:hover, .tile.zip:focus-visible { border-color: var(--cyan); box-shadow: 0 26px 60px rgba(0,0,0,.6), 0 0 44px rgba(41,224,255,.35); }
+.tile.light:hover, .tile.light:focus-visible { border-color: var(--yellow); box-shadow: 0 26px 60px rgba(0,0,0,.6), 0 0 44px rgba(255,214,10,.35); }
+.tile:active { transform: translateY(-2px) scale(.99); }
+
+/* the moving preview */
+.screen { position: relative; aspect-ratio: 1.9 / 1; background: #060b1d; border-bottom: 4px solid var(--line); }
+.screen svg { display: block; width: 100%; height: 100%; }
+.screen::after {                                   /* a glass sheen so it reads as a screen */
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 42%),
+              radial-gradient(120% 90% at 50% 40%, rgba(0,0,0,0) 55%, rgba(0,0,0,.45) 100%);
+}
+.screen-badge {
+  position: absolute; left: 14px; top: 14px; z-index: 2;
+  font-family: var(--font-display); font-size: 18px; letter-spacing: 3px; color: #0b1020;
+  background: var(--yellow); padding: 3px 14px; border-radius: 12px;
+}
+.tile.zip .screen-badge { background: var(--cyan); }
+.tile.light .screen-badge { background: #ffe9a8; }
+
+.tile-body { padding: 12px 20px 16px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+.tile-body h2 { font-family: var(--font-display); font-size: clamp(30px, 2.1vw, 40px); letter-spacing: 2px; margin: 0; color: var(--text); white-space: nowrap; }
+.tile.troll h2 { color: #ff8bc8; }
+.tile.zip h2 { color: #7ff0ff; }
+.tile.light h2 { color: #ffe08a; }
+.tile-body p { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.3; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.chips span {
+  font-family: var(--font-display); font-size: 15px; letter-spacing: 2px; color: var(--text);
+  border: 2px solid var(--line); background: rgba(8,14,34,.6); border-radius: 12px; padding: 3px 12px;
+}
+.play {
+  margin-top: auto; align-self: flex-start;
+  font-family: var(--font-display); font-size: 24px; letter-spacing: 4px; color: #2b1d00;
+  background: linear-gradient(180deg, #ffe45e, #ffb800); padding: 7px 26px; border-radius: 14px;
+  box-shadow: 0 8px 0 #8a6200, 0 12px 24px rgba(0,0,0,.5);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.tile:hover .play, .tile:focus-visible .play { transform: translateY(-2px); box-shadow: 0 10px 0 #8a6200, 0 16px 30px rgba(0,0,0,.55); }
+
+/* ================= preview animations ================= */
+
+/* --- Electrical Troll: Busby runs, hops, and a bulb drops behind him --- */
+.troll-busby { animation: busbyRun 6s linear infinite; }
+@keyframes busbyRun {
+  0%   { transform: translate(24px, 190px); }
+  38%  { transform: translate(150px, 190px); }
+  44%  { transform: translate(178px, 150px); }
+  50%  { transform: translate(206px, 190px); }
+  92%  { transform: translate(330px, 190px); }
+  93%  { transform: translate(330px, 190px); opacity: 1; }
+  97%  { opacity: 0; }
+  98%  { transform: translate(24px, 190px); opacity: 0; }
+  100% { transform: translate(24px, 190px); opacity: 1; }
+}
+.troll-bulb { animation: bulbDrop 6s ease-in infinite; }
+@keyframes bulbDrop {
+  0%, 52%   { transform: translateY(0); opacity: 1; }
+  62%       { transform: translateY(118px); opacity: 1; }
+  64%, 100% { transform: translateY(118px); opacity: 0; }
+}
+.troll-spark { opacity: 0; animation: bulbSpark 6s ease-out infinite; }
+@keyframes bulbSpark {
+  0%, 61% { opacity: 0; transform: scale(.4); }
+  64%     { opacity: 1; transform: scale(1.5); }
+  72%     { opacity: 0; transform: scale(2); }
+  100%    { opacity: 0; }
+}
+.troll-exit { animation: exitGlow 1.8s ease-in-out infinite; transform-origin: 358px 160px; }
+@keyframes exitGlow { 0%, 100% { filter: drop-shadow(0 0 4px rgba(77,255,136,.6)); } 50% { filter: drop-shadow(0 0 16px rgba(77,255,136,1)); } }
+
+/* --- Zip: the wire draws itself through the grid, then the bulb lights --- */
+.zip-wire, .zip-wire-glow { stroke-dasharray: 900; stroke-dashoffset: 900; animation: zipDraw 6s ease-in-out infinite; }
+.zip-wire-glow { animation-name: zipDrawGlow; }
+@keyframes zipDraw {
+  0%   { stroke-dashoffset: 900; }
+  55%  { stroke-dashoffset: 0; }
+  88%  { stroke-dashoffset: 0; stroke: #bfffd4; }
+  92%  { stroke-dashoffset: 0; stroke: #9ff5ff; }
+  100% { stroke-dashoffset: 900; }
+}
+@keyframes zipDrawGlow {
+  0%   { stroke-dashoffset: 900; }
+  55%  { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+.zip-halo { animation: zipHalo 6s ease-in-out infinite; }
+@keyframes zipHalo { 0%, 56% { opacity: 0; } 66% { opacity: .55; } 88% { opacity: .5; } 100% { opacity: 0; } }
+.zip-glass { animation: zipGlass 6s ease-in-out infinite; }
+@keyframes zipGlass {
+  0%, 56% { fill: rgba(190,225,255,.18); }
+  66%     { fill: rgba(255,240,190,.75); }
+  88%     { fill: rgba(255,240,190,.6); }
+  100%    { fill: rgba(190,225,255,.18); }
+}
+.zip-filament { animation: zipFil 6s ease-in-out infinite; }
+@keyframes zipFil {
+  0%, 56% { stroke: #6b5a3a; filter: none; }
+  66%     { stroke: #fff3c4; filter: drop-shadow(0 0 8px #ffd166); }
+  88%     { stroke: #ffe08a; filter: drop-shadow(0 0 6px #ffd166); }
+  100%    { stroke: #6b5a3a; filter: none; }
+}
+
+/* --- Light It Up: a cable is dragged in, the switch flips, the bulb blazes --- */
+.lit-cable { stroke-dasharray: 200; stroke-dashoffset: 200; animation: litCable 6s ease-in-out infinite; }
+.lit-cable2 { animation-name: litCable2; }
+@keyframes litCable {
+  0%   { stroke-dashoffset: 200; }
+  22%  { stroke-dashoffset: 0; }
+  92%  { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 200; }
+}
+@keyframes litCable2 {
+  0%, 24% { stroke-dashoffset: 200; }
+  46%     { stroke-dashoffset: 0; }
+  92%     { stroke-dashoffset: 0; }
+  100%    { stroke-dashoffset: 200; }
+}
+.lit-finger { animation: litFinger 6s ease-in-out infinite; }
+@keyframes litFinger {
+  0%      { opacity: 0; transform: translate(0,0) scale(1); }
+  4%      { opacity: .9; }
+  22%     { opacity: .9; transform: translate(92px,0) scale(1); }
+  26%     { opacity: 0; transform: translate(92px,0) scale(1.6); }
+  28%     { opacity: 0; transform: translate(92px,58px); }
+  32%     { opacity: .9; transform: translate(92px,58px); }
+  46%     { opacity: .9; transform: translate(184px,58px); }
+  50%     { opacity: 0; transform: translate(184px,58px) scale(1.6); }
+  100%    { opacity: 0; }
+}
+.lit-switch { transform-origin: -14px 0; animation: litSwitch 6s ease-in-out infinite; }
+@keyframes litSwitch {
+  0%, 52% { transform: rotate(0deg); }
+  58%     { transform: rotate(25deg); stroke: #4dff88; }
+  92%     { transform: rotate(25deg); stroke: #4dff88; }
+  100%    { transform: rotate(0deg); stroke: #ffd60a; }
+}
+.lit-halo { animation: litHalo 6s ease-in-out infinite; }
+@keyframes litHalo { 0%, 58% { opacity: 0; } 68% { opacity: .6; } 90% { opacity: .5; } 100% { opacity: 0; } }
+.lit-glass { animation: litGlass 6s ease-in-out infinite; }
+@keyframes litGlass {
+  0%, 58% { fill: rgba(255,240,190,.12); }
+  68%     { fill: rgba(255,240,190,.8); }
+  90%     { fill: rgba(255,240,190,.65); }
+  100%    { fill: rgba(255,240,190,.12); }
+}
+.lit-filament { animation: litFil 6s ease-in-out infinite; }
+@keyframes litFil {
+  0%, 58% { stroke: #6b5a3a; filter: none; }
+  68%     { stroke: #fff6d8; filter: drop-shadow(0 0 8px #ffd166); }
+  90%     { stroke: #ffe08a; }
+  100%    { stroke: #6b5a3a; filter: none; }
+}
+.lit-rays { animation: litRays 6s ease-in-out infinite; transform-origin: 0 -30px; }
+@keyframes litRays {
+  0%, 58% { opacity: 0; transform: scale(.7); }
+  70%     { opacity: .85; transform: scale(1); }
+  90%     { opacity: .5; transform: scale(1.04); }
+  100%    { opacity: 0; transform: scale(.7); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo, .tile, .troll-busby, .troll-bulb, .troll-spark, .troll-exit,
+  .zip-wire, .zip-wire-glow, .zip-halo, .zip-glass, .zip-filament,
+  .lit-cable, .lit-finger, .lit-switch, .lit-halo, .lit-glass, .lit-filament, .lit-rays { animation: none; }
+  .zip-wire, .zip-wire-glow, .lit-cable { stroke-dashoffset: 0; }
+}
+
+/* ---------- small screens ---------- */
+@media (max-width: 760px) {
+  .screen { aspect-ratio: 1.9 / 1; }
+  .hub-title { font-size: clamp(38px, 11vw, 64px); }
+  .hub-sub { font-size: 20px; letter-spacing: 4px; }
+  .tile-body h2 { font-size: 30px; white-space: normal; }
+  .hub, .hub-top { padding-left: 18px; padding-right: 18px; }
+  .brand-logo { width: 74px; height: 74px; }
+  .brand-text strong { font-size: 26px; }
+  .brand-text span { font-size: 12px; letter-spacing: 2px; }
+  .tiles { grid-template-columns: 1fr; gap: 22px; }
+  .tile-body h2 { font-size: 38px; }
+  .tile-body p { font-size: 17px; }
+}
+
+
+/* ==== PORTRAIT — tiles become wide rows: preview on the left, words on the right ==== */
+@media (orientation: portrait) {
+  .hub-top { padding: 18px 30px 0; }
+  .brand-logo { width: 88px; height: 88px; border-radius: 22px; }
+  .brand-text strong { font-size: 40px; }
+  .brand-text span { font-size: 17px; }
+  .hub { padding: 10px 30px 30px; }
+  .hub-title { font-size: clamp(48px, 7.4vw, 104px); margin-top: 8px; }
+  .hub-sub { font-size: clamp(20px, 2.8vw, 40px); margin-bottom: 18px; }
+  .hub-foot { font-size: clamp(14px, 1.8vw, 24px); margin-top: 24px; }
+
+  .tiles { grid-template-columns: 1fr; gap: 20px; }
+  .tile { flex-direction: row; align-items: stretch; }
+  .screen {
+    flex: 0 0 40%; width: 40%; align-self: stretch; aspect-ratio: auto; min-height: 150px;
+    border-bottom: 0; border-right: 4px solid var(--line);
+  }
+  .tile-body { justify-content: center; padding: 16px 24px; gap: 8px; }
+  .tile-body h2 { font-size: clamp(28px, 3.6vw, 48px); white-space: normal; }
+  .tile-body p { font-size: clamp(15px, 1.9vw, 24px); }
+  .chips span { font-size: clamp(14px, 1.7vw, 22px); }
+  .play { font-size: clamp(22px, 2.4vw, 32px); padding: 8px 28px; margin-top: 6px; }
+}
+
+/* narrow phones in portrait: keep the rows, just compact — all three tiles stay on one screen */
+@media (orientation: portrait) and (max-width: 620px) {
+  .hub-top { padding: 12px 14px 0; }
+  .hub { padding: 4px 14px 16px; }
+  .brand-logo { width: 58px; height: 58px; border-radius: 16px; }
+  .brand-text strong { font-size: 22px; letter-spacing: 3px; }
+  .brand-text span { font-size: 10px; letter-spacing: 2px; }
+  .hub-title { font-size: 44px; margin-top: 6px; }
+  .hub-sub { font-size: 18px; margin-bottom: 12px; letter-spacing: 4px; }
+  .hub-foot { font-size: 11px; letter-spacing: 2px; margin-top: 12px; }
+
+  .tiles { gap: 14px; }
+  .tile { border-width: 3px; border-radius: 22px; }
+  .screen { flex: 0 0 38%; width: 38%; min-height: 120px; border-right-width: 3px; }
+  .screen-badge { font-size: 12px; padding: 2px 9px; left: 8px; top: 8px; }
+  .tile-body { padding: 10px 14px; gap: 5px; }
+  .tile-body h2 { font-size: 26px; letter-spacing: 1px; }
+  .tile-body p { font-size: 13px; line-height: 1.25; }
+  .chips { gap: 5px; }
+  .chips span { font-size: 11px; padding: 2px 8px; border-width: 2px; }
+  .play { font-size: 19px; padding: 6px 18px; border-radius: 12px; box-shadow: 0 5px 0 #8a6200, 0 8px 16px rgba(0,0,0,.5); margin-top: 4px; }
+}
+
+/* very small phones: the chips go, the tiles stay readable */
+@media (orientation: portrait) and (max-width: 400px) {
+  .chips { display: none; }
+  .tile-body h2 { font-size: 23px; }
+}

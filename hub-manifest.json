@@ -1,0 +1,13 @@
+{
+  "name": "Fuji-Haya Game Zone",
+  "short_name": "Game Zone",
+  "description": "Pick a game: Electrical Troll, Zip or Light It Up! — Fuji-Haya Electric Corporation of the Philippines.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "background_color": "#070b18",
+  "theme_color": "#070b18",
+  "icons": [
+    { "src": "electric_troll/images/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

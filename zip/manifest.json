@@ -1,0 +1,14 @@
+{
+  "name": "Zip — Electrical Circuit Puzzle",
+  "short_name": "Zip",
+  "description": "Wire every terminal in order, fill every cell, and light the bulb. Fuji-Haya Electric Corporation of the Philippines.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#070b18",
+  "theme_color": "#070b18",
+  "icons": [
+    { "src": "images/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
