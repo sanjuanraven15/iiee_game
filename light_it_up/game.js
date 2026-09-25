@@ -1458,7 +1458,7 @@
   /* Zoom the board so the circuit fills whatever screen it is on (TV, monitor, tablet):
      fit the viewBox to the parts' bounding box, stretched to the container's aspect. */
   let VIEW = { x: 0, y: 0, w: LAND.w, h: LAND.h };
-  const PAD = { battery: [120, 140], bulb: [130, 140], switch: [130, 130] };
+  const PAD = { battery: [120, 140], bulb: [130, 140], switch: [130, 130] };   // air around the circuit — tighter means a bigger circuit
   function fitBoard(svg, ps) {
     if (!svg || !ps.length) return VIEW;
     let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
@@ -1542,8 +1542,8 @@
     parts = randomizedParts(currentLevel());
     mascot("happy");
     say(currentLevel().hello);
-    $("hud-level").textContent = `⚡ ${currentLevel().name}`;
-    $("board-title").textContent = `LEVEL ${levelIdx + 1} · ${currentLevel().name.toUpperCase()}`;
+    $("hud-level").textContent = currentLevel().name.toUpperCase();
+    $("board-title").textContent = `LEVEL ${levelIdx + 1} / ${LEVELS.length}`;
     lastLayout[order[levelIdx]] = parts.map((p) => Object.assign({}, p)); // remember how this circuit looked for the Sequence viewer
     dots();
     render();
@@ -1604,10 +1604,12 @@
   }
 
   /* ---------- Turn flow ---------- */
-  const show = (id) =>
+  const show = (id) => {
     document
       .querySelectorAll(".overlay")
       .forEach((o) => o.classList.toggle("hidden", o.id !== id));
+    $("app").dataset.screen = id || "game"; // lets the CSS size the logo / corner buttons per screen
+  };
   function startTurn() {
     playing = true;
     cleared = 0;
@@ -1662,6 +1664,7 @@
       confetti();
       if (finishedAll || rank === 1) sfx.jingle();
       mascot(finishedAll || rank <= 3 ? "cheer" : "happy");
+      mascot(finishedAll || rank <= 3 ? "cheer" : "happy", "mascot-result");
       clearTimeout(idleTimer);
       idleTimer = setTimeout(() => {
         if (!$("result").classList.contains("hidden")) showHome();
@@ -2170,7 +2173,8 @@
       pt.x = x;
       pt.y = y;
       const s = pt.matrixTransform(ctm);
-      return [s.x - box.left, s.y - box.top];
+      // screen pixels → canvas pixels (the whole game is scaled to fit the screen)
+      return [((s.x - box.left) * cv.width) / box.width, ((s.y - box.top) * cv.height) / box.height];
     };
     const COL = [
       "#ff6a00",
@@ -2640,10 +2644,6 @@
     bgm.start();
     bgm.toggle();
   });
-  $("btn-mute-home").addEventListener("click", () => {
-    bgm.start();
-    bgm.toggle();
-  });
   document.addEventListener("pointerdown", () => bgm.start(), { once: true }); // browsers need a gesture before audio
   const stage = $("stage");
   window.addEventListener("pointermove", moveDrag); // keep tracking even when the finger leaves the board
@@ -2670,7 +2670,7 @@
   $("btn-name-back").addEventListener("click", showHome);
   $("btn-scoreboard").addEventListener("click", () => showBoard());
   $("btn-result-board").addEventListener("click", () => showBoard(playerName));
-  $("btn-result-home").addEventListener("click", showHome);
+  $("btn-result-home").addEventListener("click", askName);
   $("btn-board-play").addEventListener("click", askName);
   $("btn-board-back").addEventListener("click", showHome);
   // Clear scoreboard: two taps within 4 s so nobody wipes it by accident
@@ -2682,24 +2682,50 @@
       clearTimeout(clearArmed);
       clearArmed = null;
       localStorage.removeItem(BOARD_KEY);
-      b.textContent = "🗑 Clear scoreboard";
+      b.textContent = "🗑 CLEAR SCOREBOARD";
       b.classList.remove("armed");
       showBoard();
       return;
     }
-    b.textContent = "⚠ Tap again to erase ALL scores";
+    b.textContent = "⚠ TAP AGAIN TO ERASE ALL";
     b.classList.add("armed");
     clearArmed = setTimeout(() => {
       clearArmed = null;
-      b.textContent = "🗑 Clear scoreboard";
+      b.textContent = "🗑 CLEAR SCOREBOARD";
       b.classList.remove("armed");
     }, 4000);
   });
+  /* ---------- Stage scaling (same rules as Electrical Troll and Zip) ----------
+     Everything is laid out on a big design canvas (1920×1080 landscape, or taller/wider to
+     match the screen's shape) and scaled to fit, so it looks the same on phones, tablets and TVs. */
+  function viewportSize() {
+    const vv = window.visualViewport, cs = getComputedStyle($("viewport")), px = (v) => parseFloat(v) || 0;
+    return {
+      w: (vv ? vv.width : innerWidth) - px(cs.paddingLeft) - px(cs.paddingRight),
+      h: (vv ? vv.height : innerHeight) - px(cs.paddingTop) - px(cs.paddingBottom),
+    };
+  }
+  function fitStage() {
+    const { w, h } = viewportSize();
+    const ar = Math.max(w, 1) / Math.max(h, 1);
+    const stageW = Math.round(Math.max(1920, 1080 * ar)), stageH = Math.round(Math.max(1080, 1920 / ar));
+    const s = Math.min(w / stageW, h / stageH);
+    const app = $("app");
+    app.style.width = stageW + "px";
+    app.style.height = stageH + "px";
+    app.style.transform = `translate(-50%, -50%) scale(${s})`;
+    app.classList.toggle("compact", s < 0.5);
+    app.classList.toggle("portrait", h > w);
+    app.classList.toggle("tall", stageH / stageW > 1.45); // phones held upright
+  }
+  fitStage();
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", onResize);
   checkOrientation();
   applyViewBox();
   // Re-lay the board when the screen rotates or the window/TV resolution changes
   let reflow;
-  const onResize = () => {
+  function onResize() {
+    fitStage();
     clearTimeout(reflow);
     reflow = setTimeout(() => {
       checkOrientation();
@@ -2709,7 +2735,7 @@
       }
       if (!$("sequence").classList.contains("hidden")) showSequence(seqIdx, true);
     }, 120);
-  };
+  }
   addEventListener("resize", onResize);
   addEventListener("orientationchange", onResize);
 

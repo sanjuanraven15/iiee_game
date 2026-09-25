@@ -2,217 +2,228 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Light It Up! — Fuji-Haya</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Bangers&family=Montserrat:wght@700;800;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=38">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Light It Up!">
+<meta name="theme-color" content="#070b18">
+<link rel="apple-touch-icon" href="images/logo.png">
+<link rel="icon" href="images/logo.png">
+<title>💡 Light It Up! — Fuji-Haya</title>
+<link rel="stylesheet" href="style.css?v=51">
 </head>
 <body>
+<div id="viewport">
+<div id="app" data-screen="home">
 
-<!-- ===== Header (cover photo background, logo + company name) ===== -->
-<header class="top">
-  <div class="brand">
-    <img class="logo" src="fhe_logo.png" alt="Fuji-Haya">
-    <div class="brand-text">
-      <div class="brand-name">FUJI-HAYA</div>
-      <div class="brand-sub">ELECTRIC CORPORATION OF THE PHILIPPINES</div>
-    </div>
-  </div>
-  <div class="hud">
-    <div class="player" id="hud-player"></div>
-    <div class="hud-level" id="hud-level"></div>
-    <div class="level-dots" id="level-dots"></div>
-    <button class="icon-btn" id="btn-mute" title="Music on/off">🔊</button>
-  </div>
-</header>
-
-<!-- ===== Game stage ===== -->
-<main class="stage-wrap">
-  <div class="board-title" id="board-title"></div>
-  <div class="timer" id="timer">
-    <span class="timer-label">TIME</span><span class="timer-value" id="timer-value">2:00</span>
-  </div>
-  <svg id="stage" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet">
-    <defs>
-      <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#FFF5B0"/><stop offset="60%" stop-color="#FFD84D"/><stop offset="100%" stop-color="#FFC107"/>
-      </radialGradient>
-      <radialGradient id="halo" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#FFE580" stop-opacity=".9"/><stop offset="100%" stop-color="#FFE580" stop-opacity="0"/>
-      </radialGradient>
-      <linearGradient id="batt" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#3A3AFF"/><stop offset="100%" stop-color="#0D0DCC"/>
-      </linearGradient>
-      <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-        <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#013f8e" flood-opacity=".18"/>
-      </filter>
-    </defs>
-    <g id="cables"></g>
-    <g id="parts"></g>
-    <g id="terminals"></g>
-    <g id="drag-layer"></g>
-  </svg>
-  <canvas id="confetti"></canvas>
-</main>
-
-<footer class="bottom">
-  <div class="controls">
-    <button class="btn btn-ghost" id="btn-clear">🧹 Clear cables</button>
-    <button class="btn btn-ghost" id="btn-quit">✖ End turn</button>
-  </div>
-  <div class="mascot-wrap">
-    <div class="bubble" id="bubble">Connect the cables!</div>
-    <svg id="mascot" viewBox="0 0 200 230"></svg>
-  </div>
-</footer>
-
-<!-- ===== Home ===== -->
-<div class="overlay cover" id="home">
-  <div class="cover-head">
-    <img class="logo" src="fhe_logo.png" alt="Fuji-Haya">
-    <div class="brand-text"><div class="brand-name">FUJI-HAYA</div><div class="brand-sub">ELECTRIC CORPORATION OF THE PHILIPPINES</div></div>
-  </div>
-  <div class="cover-body">
-    <h1 class="title"><span class="bolt">⚡</span> LIGHT IT UP! <span class="bolt">⚡</span></h1>
-    <p class="subtitle">BE THE FIRST ON THE SCOREBOARD!</p>
-    <button class="btn btn-play" id="btn-play">⚡ PLAY A TURN — 2:00</button>
-    <div class="row">
-      <button class="btn btn-outline" id="btn-scoreboard">🏆 SCOREBOARD</button>
-      <button class="btn btn-outline" id="btn-howto">📖 HOW TO PLAY</button>
-      <button class="btn btn-outline" id="btn-sequence">📋 SEQUENCE</button>
-    </div>
-    <div class="row">
-      <a class="btn btn-outline hub-link" href="../index.html">🏠 MENU — ALL GAMES</a>
-    </div>
-    <p class="howto">Drag cables between the dots to light the bulbs. Tap a cable to remove it, tap a switch to flip it.<br>You have <b>2 minutes</b> to light as many circuits as you can! Careful — a short circuit makes the bulbs EXPLODE and wastes precious seconds.</p>
-    <p class="inputs-hint">👆 Touch &nbsp;·&nbsp; 🖱️ Mouse &nbsp;·&nbsp; 🎮 Controller <span id="gp-status"></span></p>
-  </div>
-  <button class="icon-btn home-mute" id="btn-mute-home" title="Music on/off">🔊</button>
-  <div class="home-mascot">
-    <div class="bubble home-bubble">Hi! I'm Busby ⚡<br>Ready to light it up?</div>
-    <svg id="mascot-home" viewBox="0 0 200 230"></svg>
-  </div>
-</div>
-
-<!-- ===== Name entry (with on-screen keyboard for touch / controller) ===== -->
-<div class="overlay cover hidden" id="name-entry">
-  <div class="card card-wide">
-    <h2>WHO'S PLAYING?</h2>
-    <input id="name-input" type="text" maxlength="16" placeholder="Enter your name" autocomplete="off" inputmode="none">
-    <div class="osk" id="osk"></div>
-    <button class="btn btn-play" id="btn-go">⚡ START — 2:00</button>
-    <button class="btn btn-text" id="btn-name-back">← Back</button>
-  </div>
-</div>
-
-<!-- ===== Tutorial ===== -->
-<div class="overlay cover hidden" id="tutorial">
-  <div class="card card-wide tut-card">
-    <button class="card-close" data-close title="Close">✕</button>
-    <h2>📖 HOW TO PLAY</h2>
-    <div class="tabs">
-      <button class="tab active" data-tab="touch">👆 TOUCH SCREEN</button>
-      <button class="tab" data-tab="mouse">🖱️ MOUSE</button>
-      <button class="tab" data-tab="pad">🎮 CONTROLLER</button>
-    </div>
-    <div class="tab-body" id="tut-touch">
-      <ul class="steps">
-        <li><span class="ico">👆➜</span><b>Drag</b> your finger from one yellow dot to another to run a cable.</li>
-        <li><span class="ico">👆〰</span><b>Tap a cable</b> to remove it.</li>
-        <li><span class="ico">👆🔘</span><b>Tap a switch</b> to flip it ON / OFF.</li>
-        <li><span class="ico">⌨️</span>Type your name with the <b>on-screen keyboard</b> before your turn.</li>
-        <li><span class="ico">💥</span>Never connect <b>+ straight to −</b> — the bulbs explode and you lose precious seconds ⏰.</li>
-      </ul>
-    </div>
-    <div class="tab-body hidden" id="tut-mouse">
-      <ul class="steps">
-        <li><span class="ico">🖱️➜</span><b>Click and hold</b> a yellow dot, drag to another dot, release to connect.</li>
-        <li><span class="ico">🖱️〰</span><b>Click a cable</b> to remove it.</li>
-        <li><span class="ico">🖱️🔘</span><b>Click a switch</b> to flip it ON / OFF.</li>
-        <li><span class="ico">⌨️</span>Type your name with the keyboard or the on-screen keys.</li>
-        <li><span class="ico">💥</span>Never connect <b>+ straight to −</b> — the bulbs explode and you lose precious seconds ⏰.</li>
-      </ul>
-    </div>
-    <div class="tab-body hidden" id="tut-pad">
-      <ul class="steps">
-        <li><span class="ico">🕹️</span><b>Left stick / D-pad</b> moves the glove cursor 🧤.</li>
-        <li><span class="ico">Ⓐ</span>Press <b>A</b> on a dot to start a cable, move to another dot and press <b>A</b> again to connect.</li>
-        <li><span class="ico">Ⓐ</span>Press <b>A</b> on a switch to flip it, on a cable to remove it, on a button to select it.</li>
-        <li><span class="ico">Ⓑ</span><b>B</b> cancels the cable you are holding.</li>
-        <li><span class="ico">Ⓨ</span><b>Y</b> clears all cables. &nbsp; <b>START</b> begins a turn.</li>
-        <li><span class="ico">🎮</span>Plug in any USB / Bluetooth controller (Xbox, PlayStation, generic) and press a button — it connects automatically.</li>
-      </ul>
-    </div>
-    <button class="btn btn-play" id="btn-tut-close">GOT IT!</button>
-  </div>
-</div>
-
-<!-- ===== Sequence: correct wiring of every level ===== -->
-<div class="overlay cover hidden" id="sequence">
-  <div class="card seq-card">
-    <button class="card-close" data-close title="Close">✕</button>
-    <h2>📋 SEQUENCE</h2>
-    <div class="seq-picker" id="seq-picker"></div>
-    <div class="seq-head">
-      <button class="btn btn-ghost btn-nav" id="seq-prev">◀</button>
-      <div class="seq-title" id="seq-title">LEVEL 1</div>
-      <button class="btn btn-ghost btn-nav" id="seq-next">▶</button>
-      <span class="seq-flips">
-        <button class="btn btn-ghost btn-nav" id="seq-flip-x" title="Mirror left / right">⇆</button>
-        <button class="btn btn-ghost btn-nav" id="seq-flip-y" title="Mirror top / bottom">⇅</button>
-        <span class="seq-note" id="seq-note">Standard layout</span>
-      </span>
-    </div>
-    <div class="seq-board">
-      <svg id="seq-stage" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet">
-        <g id="seq-cables"></g><g id="seq-parts"></g><g id="seq-terminals"></g>
-      </svg>
-    </div>
-    <div class="seq-text">
-      <div class="seq-goal"><b>Goal:</b> <span id="seq-goal"></span></div>
-      <div class="seq-busby-row">
-        <svg id="mascot-seq" viewBox="0 0 200 230"></svg>
-        <div class="bubble seq-bubble" id="seq-how"></div>
+  <!-- ===== GAME (always underneath the menus) ===== -->
+  <section class="screen-game" id="screen-game">
+    <div class="lit-hud">
+      <div class="lit-hud-left">
+        <div class="hud-level" id="board-title">LEVEL 1</div>
+        <div class="hud-name" id="hud-level"></div>
+      </div>
+      <div class="lit-hud-centre">
+        <div class="timer" id="timer"><span class="timer-label">TIME</span><span class="timer-value" id="timer-value">2:00</span></div>
+        <div class="level-dots" id="level-dots"></div>
+      </div>
+      <div class="lit-hud-right">
+        <div class="hud-player" id="hud-player"></div>
       </div>
     </div>
-    <button class="btn btn-play" id="btn-seq-close">GOT IT!</button>
+
+    <div class="lit-body">
+      <div class="stage-wrap">
+        <svg id="stage" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#FFF5B0"/><stop offset="60%" stop-color="#FFD84D"/><stop offset="100%" stop-color="#FFC107"/>
+            </radialGradient>
+            <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#FFE580" stop-opacity=".9"/><stop offset="100%" stop-color="#FFE580" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="batt" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3A3AFF"/><stop offset="100%" stop-color="#0D0DCC"/>
+            </linearGradient>
+            <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#013f8e" flood-opacity=".18"/>
+            </filter>
+          </defs>
+          <g id="cables"></g>
+          <g id="parts"></g>
+          <g id="terminals"></g>
+          <g id="drag-layer"></g>
+        </svg>
+        <canvas id="confetti"></canvas>
+      </div>
+
+      <!-- Busby + his hints: the most important thing after the board -->
+      <aside class="lit-side">
+        <div class="busby-box">
+          <svg class="mascot" id="mascot" viewBox="0 0 200 230" aria-hidden="true"></svg>
+          <div class="bubble" id="bubble">Connect the cables!</div>
+        </div>
+        <div class="controls">
+          <button class="btn small ghost" id="btn-clear">🧹 CLEAR CABLES</button>
+          <button class="btn small ghost" id="btn-quit">✕ END TURN</button>
+          <a class="btn small ghost hub-link" href="../index.html">🏠 GAME ZONE</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===== Home ===== -->
+  <div class="overlay cover" id="home">
+    <h1 class="title big"><span class="bolt">⚡</span> LIGHT IT UP! <span class="bolt">⚡</span></h1>
+    <p class="tagline">HOW MANY CIRCUITS CAN YOU LIGHT IN 2 MINUTES?</p>
+    <p class="tagline small">BE THE FIRST ON THE SCOREBOARD!</p>
+    <div class="menu">
+      <button class="btn primary" id="btn-play">⚡ PLAY — 2 MINUTES</button>
+      <div class="menu-row">
+        <button class="btn" id="btn-scoreboard">🏆 SCOREBOARD</button>
+        <button class="btn" id="btn-howto">📖 HOW TO PLAY</button>
+        <button class="btn" id="btn-sequence">📋 SEQUENCE</button>
+      </div>
+      <a class="btn ghost small hub-link" href="../index.html">◀ GAME ZONE</a>
+    </div>
+    <p class="inputs-hint">👆 Touch &nbsp;·&nbsp; 🖱️ Mouse &nbsp;·&nbsp; 🎮 Controller <span id="gp-status"></span></p>
+    <div class="hint-box greet" id="main-greet">
+      <svg class="mascot" id="mascot-home" viewBox="0 0 200 230" aria-hidden="true"></svg>
+      <div class="balloon">Hi, I'm Busby! Drag cables between the dots to light the bulbs. Never wire <b>+ straight to −</b> — the bulbs explode and you lose precious seconds. Ready?</div>
+    </div>
   </div>
+
+  <!-- ===== Name entry (with on-screen keyboard for touch / controller) ===== -->
+  <div class="overlay cover hidden" id="name-entry">
+    <h1 class="title mid">⚡ WHO IS PLAYING? ⚡</h1>
+    <p class="subtitle">ENTER YOUR NAME FOR THIS TURN</p>
+    <input id="name-input" type="text" maxlength="16" placeholder="YOUR NAME" autocomplete="off" inputmode="none">
+    <div class="osk" id="osk"></div>
+    <button class="btn primary" id="btn-go">START ➜</button>
+    <button class="btn small ghost corner-left" id="btn-name-back">✕ CANCEL</button>
+  </div>
+
+  <!-- ===== Tutorial ===== -->
+  <div class="overlay cover hidden" id="tutorial">
+    <div class="card tut-card">
+      <button class="card-close" data-close title="Close">✕</button>
+      <h2 class="title mid">📖 HOW TO PLAY</h2>
+      <div class="tabs">
+        <button class="tab active" data-tab="touch">👆 TOUCH SCREEN</button>
+        <button class="tab" data-tab="mouse">🖱️ MOUSE</button>
+        <button class="tab" data-tab="pad">🎮 CONTROLLER</button>
+      </div>
+      <div class="tab-body" id="tut-touch">
+        <ul class="steps">
+          <li><span class="ico">👆➜</span><b>Drag</b> your finger from one yellow dot to another to run a cable.</li>
+          <li><span class="ico">👆〰</span><b>Tap a cable</b> to remove it.</li>
+          <li><span class="ico">👆🔘</span><b>Tap a switch</b> to flip it ON / OFF.</li>
+          <li><span class="ico">⌨️</span>Type your name with the <b>on-screen keyboard</b> before your turn.</li>
+          <li><span class="ico">💥</span>Never connect <b>+ straight to −</b> — the bulbs explode and you lose precious seconds ⏰.</li>
+        </ul>
+      </div>
+      <div class="tab-body hidden" id="tut-mouse">
+        <ul class="steps">
+          <li><span class="ico">🖱️➜</span><b>Click and hold</b> a yellow dot, drag to another dot, release to connect.</li>
+          <li><span class="ico">🖱️〰</span><b>Click a cable</b> to remove it.</li>
+          <li><span class="ico">🖱️🔘</span><b>Click a switch</b> to flip it ON / OFF.</li>
+          <li><span class="ico">⌨️</span>Type your name with the keyboard or the on-screen keys.</li>
+          <li><span class="ico">💥</span>Never connect <b>+ straight to −</b> — the bulbs explode and you lose precious seconds ⏰.</li>
+        </ul>
+      </div>
+      <div class="tab-body hidden" id="tut-pad">
+        <ul class="steps">
+          <li><span class="ico">🕹️</span><b>Left stick / D-pad</b> moves the glove cursor 🧤.</li>
+          <li><span class="ico">Ⓐ</span>Press <b>A</b> on a dot to start a cable, move to another dot and press <b>A</b> again to connect.</li>
+          <li><span class="ico">Ⓐ</span>Press <b>A</b> on a switch to flip it, on a cable to remove it, on a button to select it.</li>
+          <li><span class="ico">Ⓑ</span><b>B</b> cancels the cable you are holding.</li>
+          <li><span class="ico">Ⓨ</span><b>Y</b> clears all cables. &nbsp; <b>START</b> begins a turn.</li>
+          <li><span class="ico">🎮</span>Plug in any USB / Bluetooth controller (Xbox, PlayStation, generic) and press a button — it connects automatically.</li>
+        </ul>
+      </div>
+      <button class="btn primary" id="btn-tut-close">GOT IT!</button>
+    </div>
+  </div>
+
+  <!-- ===== Sequence: correct wiring of every level ===== -->
+  <div class="overlay cover hidden" id="sequence">
+    <div class="card seq-card">
+      <button class="card-close" data-close title="Close">✕</button>
+      <h2 class="title mid">📋 SEQUENCE</h2>
+      <div class="seq-picker" id="seq-picker"></div>
+      <div class="seq-head">
+        <button class="btn small ghost btn-nav" id="seq-prev">◀</button>
+        <div class="seq-title" id="seq-title">LEVEL 1</div>
+        <button class="btn small ghost btn-nav" id="seq-next">▶</button>
+        <span class="seq-flips">
+          <button class="btn small ghost btn-nav" id="seq-flip-x" title="Mirror left / right">⇆</button>
+          <button class="btn small ghost btn-nav" id="seq-flip-y" title="Mirror top / bottom">⇅</button>
+          <span class="seq-note" id="seq-note">Standard layout</span>
+        </span>
+      </div>
+      <div class="seq-board">
+        <svg id="seq-stage" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet">
+          <g id="seq-cables"></g><g id="seq-parts"></g><g id="seq-terminals"></g>
+        </svg>
+      </div>
+      <div class="seq-text">
+        <div class="seq-goal"><b>Goal:</b> <span id="seq-goal"></span></div>
+        <div class="hint-box seq-busby-row">
+          <svg class="mascot" id="mascot-seq" viewBox="0 0 200 230" aria-hidden="true"></svg>
+          <div class="balloon" id="seq-how"></div>
+        </div>
+      </div>
+      <button class="btn primary" id="btn-seq-close">GOT IT!</button>
+    </div>
+  </div>
+
+  <!-- ===== Result ===== -->
+  <div class="overlay cover hidden" id="result">
+    <h1 class="title warn" id="result-title">TIME'S UP!</h1>
+    <div class="hint-box summary-mascot-row">
+      <svg class="mascot" id="mascot-result" viewBox="0 0 200 230" aria-hidden="true"></svg>
+      <div class="balloon" id="result-detail">You lit 3 circuits.</div>
+    </div>
+    <div class="summary-card">
+      <div class="big-emoji" id="result-emoji">⏰</div>
+      <div class="summary-score" id="result-score">0</div>
+      <div class="summary-rank" id="result-rank"></div>
+    </div>
+    <div class="menu horizontal">
+      <button class="btn primary" id="btn-result-home">👤 NEXT PLAYER</button>
+      <button class="btn" id="btn-result-board">🏆 SCOREBOARD</button>
+      <a class="btn ghost hub-link" href="../index.html">🏠 GAME ZONE</a>
+    </div>
+  </div>
+
+  <!-- ===== Scoreboard ===== -->
+  <div class="overlay cover hidden" id="scoreboard">
+    <header class="screen-header">
+      <button class="btn small ghost" id="btn-board-back">◀ BACK</button>
+      <h2 class="title mid">🏆 SCOREBOARD</h2>
+      <div></div>
+    </header>
+    <ol class="board" id="board-list"></ol>
+    <div class="menu horizontal">
+      <button class="btn primary" id="btn-board-play">⚡ PLAY</button>
+      <a class="btn ghost hub-link" href="../index.html">🏠 GAME ZONE</a>
+      <button class="btn ghost" id="btn-board-clear">🗑 CLEAR SCOREBOARD</button>
+    </div>
+  </div>
+
+  <button class="btn small ghost corner-right" id="btn-mute" title="Music on/off">🔊</button>
+
+  <!-- Company branding: logo + name in the corner of every screen -->
+  <div id="brand" aria-hidden="true">
+    <img src="images/logo.png" alt="Fuji-Haya logo" width="136" height="136">
+    <div class="brand-text"><strong>FUJI-HAYA</strong><span>ELECTRIC CORPORATION OF THE PHILIPPINES</span></div>
+  </div>
+</div>
 </div>
 
 <!-- Gamepad glove cursor -->
 <div id="gp-cursor" class="hidden">🧤</div>
 
-<!-- ===== Result ===== -->
-<div class="overlay cover hidden" id="result">
-  <div class="card">
-    <div class="big-emoji" id="result-emoji">⏰</div>
-    <h2 id="result-title">TIME'S UP!</h2>
-    <div class="score-big" id="result-score">0</div>
-    <p id="result-detail">You lit 3 circuits.</p>
-    <p class="rank" id="result-rank"></p>
-    <button class="btn btn-play" id="btn-result-board">🏆 SCOREBOARD</button>
-    <button class="btn btn-outline" id="btn-result-home">PLAY AGAIN</button>
-    <a class="btn btn-outline hub-link" href="../index.html">🏠 MAIN MENU</a>
-  </div>
-</div>
-
-<!-- ===== Scoreboard ===== -->
-<div class="overlay cover hidden" id="scoreboard">
-  <div class="card board-card">
-    <button class="card-close" data-close title="Close">✕</button>
-    <h2>🏆 SCOREBOARD</h2>
-    <ol class="board" id="board-list"></ol>
-    <button class="btn btn-play" id="btn-board-play">⚡ PLAY A TURN</button>
-    <div class="row">
-      <button class="btn btn-text" id="btn-board-back">← Back</button>
-      <a class="btn btn-text hub-link" href="../index.html">🏠 Main menu</a>
-      <button class="btn btn-text btn-danger-text" id="btn-board-clear">🗑 Clear scoreboard</button>
-    </div>
-  </div>
-</div>
-
-<script src="game.js?v=36"></script>
+<script src="game.js?v=40"></script>
 </body>
 </html>

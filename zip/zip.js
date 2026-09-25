@@ -441,13 +441,51 @@ function fxRing(x, y, colour, r0 = 10, grow = 90, max = 0.55) { fx.rings.push({ 
 function fxCell(v, colour) { fx.pulses.set(v, { t: 0, colour }); }
 function fxShake(a) { fx.shake = Math.max(fx.shake, a); }
 
+/* ---------- the board ----------
+   Board coordinates are (u, v) in pixels measured from the middle of the board, h is the height above it.
+   The view is straight on and flat — the grid stays a true square, no lean, no rows shrinking into the
+   distance — but anything with height still stands up off the board: h simply lifts it up the screen,
+   which is what gives the pads, walls, posts and cable their thickness.
+   Everything drawn goes through proj(); cellAt() runs the same maths backwards. */
+const LIFT = 0;                                  // 0 = the grid is drawn flat; only the cable keeps its depth
+const SIN_T = LIFT, COS_T = 1;                   // COS_T = 1: every row is the same size, board stays square
+const ORTHO = 2e6;                               // a camera so far away the perspective flattens out
+
+function proj(u, v, h, g) {
+  const z = g.D - h * COS_T - v * SIN_T;
+  const s = g.F / z;                             // ~1 everywhere: nothing shrinks with depth any more
+  return { x: g.cx + u * s, y: g.cy - (h * SIN_T - v * COS_T) * s, s };
+}
+
+/* Picks the biggest cell size whose projected board still fits the canvas, then centres it. */
 const geom = () => {
-  const p = game.puzzle, pad = p.C >= 8 || p.R >= 8 ? 26 : 40;
-  const cell = Math.floor(Math.min((canvas.width - pad * 2) / p.C, (canvas.height - pad * 2) / p.R));
-  const ox = Math.floor((canvas.width - cell * p.C) / 2), oy = Math.floor((canvas.height - cell * p.R) / 2);
-  return { cell, ox, oy };
+  const p = game.puzzle;
+  const W = canvas.width, H = canvas.height;
+  const pad = p.C >= 8 || p.R >= 8 ? 16 : 26;
+  const D = ORTHO;                               // flat view: no perspective, only the raised edges
+  let cell = Math.min((W - pad * 2) / p.C, (H - pad * 2) / (p.R * COS_T + 1.2));
+  let g = null;
+  for (let pass = 0; pass < 4; pass++) {
+    g = { cell, R: p.R, C: p.C, D, F: D, cx: W / 2, cy: H / 2,
+          bw: cell * p.C, bh: cell * p.R, tileH: cell * 0.22, slab: cell * 0.5 };
+    const m = cell * 0.34;
+    let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+    for (const u of [-g.bw / 2 - m, g.bw / 2 + m])
+      for (const v of [-g.bh / 2 - m, g.bh / 2 + m])
+        for (const h of [-g.slab, g.tileH + cell * 0.62]) {
+          const q = proj(u, v, h, g);
+          if (q.x < minX) minX = q.x; if (q.x > maxX) maxX = q.x;
+          if (q.y < minY) minY = q.y; if (q.y > maxY) maxY = q.y;
+        }
+    g.cy += H / 2 - (minY + maxY) / 2;
+    const k = Math.min((W - pad * 2) / (maxX - minX), (H - pad * 2) / (maxY - minY));
+    if (k > 0.99 && k < 1.02) break;
+    cell *= Math.min(k, 1.25);
+  }
+  return g;
 };
-const centre = (v, g) => { const p = game.puzzle; return { x: g.ox + (v % p.C) * g.cell + g.cell / 2, y: g.oy + ((v / p.C) | 0) * g.cell + g.cell / 2 }; };
+/* the middle of a cell's top face, in screen pixels — sparks and rings still work in screen space */
+const centre = (v, g) => proj(-g.bw / 2 + (v % g.C + 0.5) * g.cell, -g.bh / 2 + (((v / g.C) | 0) + 0.5) * g.cell, g.tileH, g);
 
 let lastDraw = performance.now();
 function draw() {
@@ -470,133 +508,218 @@ function draw() {
   /* how far the winning surge has travelled along the wire */
   const surgeAt = fx.surge ? fx.surge.t / 0.9 * game.wire.length : -1;
 
-  /* circuit-board grid */
+  /* ---------- the board, drawn back to front ---------- */
+  const T = g.tileH, INSET = Math.max(2, g.cell * 0.05);
+  const P = (u, v, h) => proj(u, v, h, g);
+  const quad = pts => { ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y); for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.closePath(); };
+  const face = (pts, fill) => { ctx.fillStyle = fill; quad(pts); ctx.fill(); };
+  const corners = (col, row, h, inset) => {
+    const x0 = -g.bw / 2 + col * g.cell + inset, x1 = x0 + g.cell - inset * 2;
+    const y0 = -g.bh / 2 + row * g.cell + inset, y1 = y0 + g.cell - inset * 2;
+    return [P(x0, y0, h), P(x1, y0, h), P(x1, y1, h), P(x0, y1, h)];   // back-left, back-right, front-right, front-left
+  };
+  /* top face catches the light, the front is in shadow, the side sits in between */
+  /* flat pads: a calm board so the cable is what your eye follows */
+  const PAL = {
+    idle:  { top: '#15224b', edge: '#2f4578', pad: 'rgba(139,155,196,.35)' },
+    live:  { top: '#0f4b68', edge: 'rgba(120,240,255,.85)', pad: 'rgba(200,250,255,.7)' },
+    surge: { top: '#0e5c3c', edge: 'rgba(150,255,190,.9)', pad: 'rgba(210,255,230,.75)' },
+    dead:  { top: '#5e1a2c', edge: 'rgba(255,120,140,.85)', pad: 'rgba(255,190,200,.65)' }
+  };
+
+  /* the circuit board itself: a slab with a visible edge, so the cells have something to stand on */
+  {
+    const m = g.cell * 0.34, x0 = -g.bw / 2 - m, x1 = g.bw / 2 + m, y0 = -g.bh / 2 - m, y1 = g.bh / 2 + m;
+    const t4 = [P(x0, y0, 0), P(x1, y0, 0), P(x1, y1, 0), P(x0, y1, 0)];
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 14;
+    face(t4, '#0a1330');
+    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    ctx.strokeStyle = 'rgba(41,224,255,.22)'; ctx.lineWidth = 2; quad(t4); ctx.stroke();
+    ctx.restore();
+  }
+
+  /* cells: little raised pads, near rows drawn last so they overlap the ones behind */
   const cx0 = (p.C - 1) / 2, cy0 = (p.R - 1) / 2;
   for (let v = 0; v < p.N; v++) {
-    const c = centre(v, g), wireIdx = game.wire.indexOf(v), inWire = wireIdx >= 0;
-    /* new level: cells drop in from the middle outwards */
-    let scale = 1, alpha = 1;
-    if (fx.intro > 0) {
-      const dist = Math.hypot((v % p.C) - cx0, ((v / p.C) | 0) - cy0) / Math.hypot(cx0 + 1, cy0 + 1);
+    const col = v % p.C, row = (v / p.C) | 0;
+    const wireIdx = game.wire.indexOf(v), inWire = wireIdx >= 0;
+    let h = T, inset = INSET, alpha = 1;
+    if (fx.intro > 0) {                                              /* new level: the cells drop onto the board */
+      const dist = Math.hypot(col - cx0, row - cy0) / Math.hypot(cx0 + 1, cy0 + 1);
       const k = Math.max(0, Math.min(1, (1 - fx.intro) * 1.9 - dist * 0.7));
       if (k <= 0) continue;
-      scale = 0.45 + 0.55 * (k < 1 ? 1 - Math.pow(1 - k, 3) : 1); alpha = k;
+      const e = k < 1 ? 1 - Math.pow(1 - k, 3) : 1;
+      h = T + (1 - e) * g.cell * 0.9;
+      inset = INSET + (1 - e) * g.cell * 0.2;
+      alpha = k;
     }
     const pulse = fx.pulses.get(v);
     const surged = surgeAt >= 0 && wireIdx >= 0 && wireIdx <= surgeAt;
+    const dead = inWire && fx.fail > 0;                               // everything already connected reads as faulty
+    const pal = dead ? PAL.dead : surged ? PAL.surge : inWire ? PAL.live : PAL.idle;
+    const c = P(-g.bw / 2 + (col + 0.5) * g.cell, -g.bh / 2 + (row + 0.5) * g.cell, h);
+    const half = (g.cell - inset * 2) / 2, rad = Math.max(6, g.cell * 0.13);
     ctx.save();
     ctx.globalAlpha = alpha;
-    if (scale !== 1) { ctx.translate(c.x, c.y); ctx.scale(scale, scale); ctx.translate(-c.x, -c.y); }
-    if (pulse) { const k = 1 - pulse.t; ctx.shadowColor = pulse.colour; ctx.shadowBlur = 26 * k; }
-    const dead = inWire && fx.fail > 0;                      // everything already connected reads as faulty
-    ctx.fillStyle = dead ? `rgba(255,61,90,${(0.1 + 0.18 * fx.fail).toFixed(3)})` : surged ? 'rgba(77,255,136,.22)' : inWire ? 'rgba(41,224,255,.14)' : 'rgba(12, 22, 52, .9)';
-    ctx.strokeStyle = dead ? `rgba(255,61,90,${(0.35 + 0.5 * fx.fail).toFixed(3)})` : surged ? 'rgba(77,255,136,.7)' : inWire ? 'rgba(41,224,255,.45)' : '#24365f';
-    ctx.lineWidth = 3 + (pulse ? 4 * (1 - pulse.t) : 0);
-    const grow = pulse ? (1 - pulse.t) * g.cell * 0.06 : 0;
-    roundRect(c.x - g.cell / 2 + 5 - grow, c.y - g.cell / 2 + 5 - grow, g.cell - 10 + grow * 2, g.cell - 10 + grow * 2, 14);
-    ctx.fill(); ctx.stroke();
+    if (pulse) { ctx.shadowColor = pulse.colour; ctx.shadowBlur = 30 * (1 - pulse.t); }
+    ctx.fillStyle = pal.top;
+    roundRect(c.x - half, c.y - half, half * 2, half * 2, rad); ctx.fill();
     ctx.shadowBlur = 0;
-    /* solder pad */
-    ctx.fillStyle = dead ? 'rgba(255,120,140,.7)' : surged ? 'rgba(77,255,136,.6)' : inWire ? 'rgba(41,224,255,.35)' : 'rgba(139,155,196,.25)';
+    ctx.strokeStyle = pal.edge; ctx.lineWidth = 2 + (pulse ? 3 * (1 - pulse.t) : 0);
+    roundRect(c.x - half, c.y - half, half * 2, half * 2, rad); ctx.stroke();
+    /* solder pad in the middle of the cell */
+    ctx.fillStyle = pal.pad;
     ctx.beginPath(); ctx.arc(c.x, c.y, 5, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
-  /* walls: hazard-striped bars between cells */
+
+  /* walls: hazard-striped blocks standing on the board between two cells */
   for (const key of p.walls) {
-    const [a, b] = key.split('-').map(Number), ca = centre(a, g), cb = centre(b, g);
-    const mx = (ca.x + cb.x) / 2, my = (ca.y + cb.y) / 2, vertical = Math.abs(a - b) === 1;
-    ctx.save(); ctx.translate(mx, my); if (!vertical) ctx.rotate(Math.PI / 2);
-    ctx.fillStyle = '#ffd60a'; roundRect(-7, -g.cell / 2 + 8, 14, g.cell - 16, 6); ctx.fill();
-    ctx.fillStyle = '#111';
-    for (let y = -g.cell / 2 + 12; y < g.cell / 2 - 14; y += 18) ctx.fillRect(-7, y, 14, 8);
+    const [a, b] = key.split('-').map(Number);
+    const vertical = Math.abs(a - b) === 1;                           // a bar standing between side-by-side cells
+    const ex = -g.bw / 2 + (((a % p.C) + (b % p.C)) / 2 + 0.5) * g.cell;
+    const ey = -g.bh / 2 + ((((a / p.C) | 0) + ((b / p.C) | 0)) / 2 + 0.5) * g.cell;
+    const hx = vertical ? g.cell * 0.07 : g.cell * 0.44;
+    const hy = vertical ? g.cell * 0.44 : g.cell * 0.07;
+    const hTop = T + g.cell * 0.32;
+    const t4 = [P(ex - hx, ey - hy, hTop), P(ex + hx, ey - hy, hTop), P(ex + hx, ey + hy, hTop), P(ex - hx, ey + hy, hTop)];
+    ctx.save();
+    face(t4, '#ffd60a');
+    const N = 5;                                                      // black hazard dashes along the bar
+    for (let i = 0; i < N; i += 2) {
+      const f0 = -1 + (i / N) * 2, f1 = -1 + ((i + 1) / N) * 2;
+      face(vertical
+        ? [P(ex - hx, ey + hy * f0, hTop), P(ex + hx, ey + hy * f0, hTop), P(ex + hx, ey + hy * f1, hTop), P(ex - hx, ey + hy * f1, hTop)]
+        : [P(ex + hx * f0, ey - hy, hTop), P(ex + hx * f1, ey - hy, hTop), P(ex + hx * f1, ey + hy, hTop), P(ex + hx * f0, ey + hy, hTop)],
+        '#12100a');
+    }
     ctx.restore();
   }
-  /* the wire, with current visibly running through it */
+
+  /* the wire: a cable lying on top of the pads, thinning towards the back of the board */
   if (game.wire.length) {
+    const pts = game.wire.map(v => centre(v, g));
     const live = fx.surge ? '#4dff88' : '#7ff0ff';
     const halo = fx.surge ? 'rgba(77,255,136,.4)' : 'rgba(41,224,255,.35)';
+    const path = () => { ctx.beginPath(); pts.forEach((c, i) => i ? ctx.lineTo(c.x, c.y) : ctx.moveTo(c.x, c.y)); };
+    const avg = pts.reduce((a, c) => a + c.s, 0) / pts.length;
     ctx.save();
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.beginPath();
-    game.wire.forEach((v, i) => { const c = centre(v, g); if (i === 0) ctx.moveTo(c.x, c.y); else ctx.lineTo(c.x, c.y); });
-    ctx.strokeStyle = halo; ctx.lineWidth = g.cell * 0.42; ctx.shadowColor = fx.surge ? '#4dff88' : '#29e0ff'; ctx.shadowBlur = 24 + (fx.surge ? 24 : 0); ctx.stroke();
-    ctx.shadowBlur = 0; ctx.strokeStyle = live; ctx.lineWidth = g.cell * 0.22; ctx.stroke();
-    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = g.cell * 0.06; ctx.globalAlpha = 0.7; ctx.stroke();
+    path(); ctx.strokeStyle = halo; ctx.lineWidth = g.cell * 0.42 * avg;
+    ctx.shadowColor = fx.surge ? '#4dff88' : '#29e0ff'; ctx.shadowBlur = 24 + (fx.surge ? 24 : 0); ctx.stroke();
+    ctx.shadowBlur = 0;
+    for (let i = 1; i < pts.length; i++) {                            // per segment, so the cable has depth
+      const a = pts[i - 1], b = pts[i], sc = (a.s + b.s) / 2;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+      ctx.strokeStyle = 'rgba(2,10,28,.6)'; ctx.lineWidth = g.cell * 0.3 * sc; ctx.stroke();   // dark rim = round cable
+      ctx.strokeStyle = live; ctx.lineWidth = g.cell * 0.22 * sc; ctx.stroke();
+      ctx.save();
+      ctx.translate(0, -g.cell * 0.05 * sc);                          // highlight sits on the upper side of the tube
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+      ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = g.cell * 0.05 * sc; ctx.stroke();
+      ctx.restore();
+    }
     /* dashes flowing from terminal 1 towards the head: the current itself */
     ctx.globalAlpha = 0.85;
-    ctx.setLineDash([g.cell * 0.14, g.cell * 0.34]);
-    ctx.lineDashOffset = -t * g.cell * (fx.surge ? 4.5 : 1.6);
-    ctx.strokeStyle = fx.surge ? '#dfffe9' : '#d8fbff'; ctx.lineWidth = g.cell * 0.1;
-    ctx.stroke();
-    ctx.setLineDash([]);
+    ctx.setLineDash([g.cell * 0.14 * avg, g.cell * 0.34 * avg]);
+    ctx.lineDashOffset = -t * g.cell * avg * (fx.surge ? 4.5 : 1.6);
+    ctx.strokeStyle = fx.surge ? '#dfffe9' : '#d8fbff'; ctx.lineWidth = g.cell * 0.1 * avg;
+    path(); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
     /* a blown fuse kills the line: the drawn circuit glows red until it recovers */
     if (fx.fail > 0) {
       ctx.globalAlpha = Math.min(1, fx.fail);
       ctx.shadowColor = '#ff3d5a'; ctx.shadowBlur = 26;
-      ctx.strokeStyle = 'rgba(255,61,90,.55)'; ctx.lineWidth = g.cell * 0.42; ctx.stroke();
+      path(); ctx.strokeStyle = 'rgba(255,61,90,.55)'; ctx.lineWidth = g.cell * 0.42 * avg; ctx.stroke();
       ctx.shadowBlur = 0;
-      ctx.strokeStyle = '#ff6b7f'; ctx.lineWidth = g.cell * 0.22; ctx.stroke();
-      ctx.strokeStyle = '#ffd7dd'; ctx.lineWidth = g.cell * 0.06; ctx.stroke();
+      path(); ctx.strokeStyle = '#ff6b7f'; ctx.lineWidth = g.cell * 0.22 * avg; ctx.stroke();
+      path(); ctx.strokeStyle = '#ffd7dd'; ctx.lineWidth = g.cell * 0.06 * avg; ctx.stroke();
       ctx.globalAlpha = 1;
     }
     ctx.restore();
     /* the surge front: a bright bead racing to the end */
     if (fx.surge && surgeAt >= 0 && surgeAt < game.wire.length) {
-      const i = Math.floor(surgeAt), f = surgeAt - i;
-      const a = centre(game.wire[i], g), b = centre(game.wire[Math.min(game.wire.length - 1, i + 1)], g);
-      const x = a.x + (b.x - a.x) * f, y = a.y + (b.y - a.y) * f;
+      const i = Math.floor(surgeAt), fq = surgeAt - i;
+      const a = pts[i], b = pts[Math.min(pts.length - 1, i + 1)];
+      const x = a.x + (b.x - a.x) * fq, y = a.y + (b.y - a.y) * fq;
       ctx.save(); ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 30; ctx.fillStyle = '#ffffff';
-      ctx.beginPath(); ctx.arc(x, y, g.cell * 0.2, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+      ctx.beginPath(); ctx.arc(x, y, g.cell * 0.2 * a.s, 0, Math.PI * 2); ctx.fill(); ctx.restore();
       if (Math.random() < 0.6) fxSpark(x, y, 2, '#bfffd4', 180);
     }
   }
-  /* terminals */
+
+  /* terminals: numbered posts sticking up out of the board */
   for (const [v, num] of p.numbers) {
     const c = centre(v, g), done = game.wire.includes(v), isNext = num === game.next && !done;
-    const r = g.cell * 0.3;
+    const r = g.cell * 0.3 * c.s, ry = r * COS_T;
+    const lift = g.cell * 0.16 * c.s * SIN_T;                          // how tall the post looks from here
     ctx.save();
-    if (isNext) {                                          /* the terminal you are due keeps calling you */
-      ctx.shadowColor = '#ffd60a'; ctx.shadowBlur = 18 + Math.sin(t * 6) * 8;
+    if (isNext) {                                                      /* the terminal you are due keeps calling you */
       ctx.save();
       ctx.globalAlpha = 0.5 + Math.sin(t * 4) * 0.2;
       ctx.strokeStyle = '#ffd60a'; ctx.lineWidth = 3;
       ctx.setLineDash([10, 12]); ctx.lineDashOffset = -t * 40;
-      ctx.beginPath(); ctx.arc(c.x, c.y, r + 12 + Math.sin(t * 4) * 3, 0, Math.PI * 2); ctx.stroke();
+      const rr = r + 12 + Math.sin(t * 4) * 3;
+      ctx.beginPath(); ctx.ellipse(c.x, c.y, rr, rr * COS_T, 0, 0, Math.PI * 2); ctx.stroke();
       ctx.setLineDash([]); ctx.restore();
+      ctx.shadowColor = '#ffd60a'; ctx.shadowBlur = 18 + Math.sin(t * 6) * 8;
     }
     const deadT = done && fx.fail > 0.15;
-    ctx.fillStyle = deadT ? '#ff5f76' : done ? '#4dff88' : (isNext ? '#ffd60a' : '#141d38');
-    ctx.strokeStyle = deadT ? '#a3122a' : done ? '#1f8f48' : (isNext ? '#b38600' : '#4b64a3'); ctx.lineWidth = 5;
-    ctx.beginPath(); ctx.arc(c.x, c.y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    const top = deadT ? '#ff5f76' : done ? '#4dff88' : (isNext ? '#ffd60a' : '#1a2550');
+    const side = deadT ? '#8e1024' : done ? '#1a7f40' : (isNext ? '#9c7400' : '#0d1533');
+    if (lift > 0.5) {                                    // only when the board is drawn with height
+      ctx.fillStyle = side;
+      ctx.beginPath();
+      ctx.moveTo(c.x - r, c.y - lift);
+      ctx.lineTo(c.x - r, c.y);
+      ctx.ellipse(c.x, c.y, r, ry, 0, Math.PI, 0, true);
+      ctx.lineTo(c.x + r, c.y - lift);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle = top;
+    ctx.strokeStyle = deadT ? '#a3122a' : done ? '#1f8f48' : (isNext ? '#b38600' : '#4b64a3'); ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.ellipse(c.x, c.y - lift, r, ry, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     ctx.shadowBlur = 0;
+    /* the number lies flat on the top of the post */
+    ctx.save();
+    ctx.translate(c.x, c.y - lift); ctx.scale(1, COS_T);
     ctx.fillStyle = done || isNext ? '#0b1020' : '#f4f7ff';
-    ctx.font = `${Math.round(g.cell * 0.36)}px Bangers, Impact, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(String(num), c.x, c.y + 2);
+    ctx.font = `${Math.round(g.cell * 0.38 * c.s)}px Bangers, Impact, sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(String(num), 0, 2);
+    ctx.restore();
     ctx.restore();
   }
-  /* Busby rides the live end of the wire — drawn last so a terminal never hides him */
+
+  /* Busby rides the live end of the wire — drawn last so nothing on the board hides him */
   if (game.wire.length) {
-    const h = centre(game.wire[game.wire.length - 1], g);
+    const head = game.wire[game.wire.length - 1];
+    const h = centre(head, g);
+    const onTerminal = p.numbers.has(head);
     const mood = headMood();
     const img = headSprites && headSprites[mood];
     ctx.save();
-    if (!p.numbers.has(game.wire[game.wire.length - 1])) {              // a glow under his feet, except on a terminal
+    /* his shadow on the board, and the glow he stands in */
+    ctx.fillStyle = 'rgba(2,6,18,.45)';
+    ctx.beginPath(); ctx.ellipse(h.x, h.y + 2, g.cell * 0.2 * h.s, g.cell * 0.2 * h.s * COS_T, 0, 0, Math.PI * 2); ctx.fill();
+    if (!onTerminal) {
       ctx.shadowColor = mood === 'dead' ? '#ff3d5a' : '#29e0ff'; ctx.shadowBlur = 26;
       ctx.fillStyle = mood === 'dead' ? 'rgba(255,61,90,.3)' : 'rgba(180,245,255,.38)';
-      ctx.beginPath(); ctx.arc(h.x, h.y, g.cell * 0.26 + Math.sin(t * 8) * 2, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(h.x, h.y, (g.cell * 0.26 + Math.sin(t * 8) * 2) * h.s, (g.cell * 0.26 + Math.sin(t * 8) * 2) * h.s * COS_T, 0, 0, Math.PI * 2); ctx.fill();
       ctx.shadowBlur = 0;
     }
     if (img && img.complete && img.naturalWidth) {
-      const hh = g.cell * 0.72, hw = hh * (200 / 232);
-      const bob = mood === 'dead' ? 0 : Math.sin(t * 6) * g.cell * 0.03;
-      /* standing on a numbered terminal he steps up a little, so the number stays readable under him */
-      const lift = p.numbers.has(game.wire[game.wire.length - 1]) ? g.cell * 0.32 : 0;
+      const hh = g.cell * 0.78 * h.s, hw = hh * (200 / 232);
+      const bob = mood === 'dead' ? 0 : Math.sin(t * 6) * g.cell * 0.03 * h.s;
+      /* standing on a post he steps up onto it, so the number stays readable under him */
+      const lift = onTerminal ? g.cell * 0.2 * h.s * SIN_T : 0;
       ctx.translate(h.x, h.y + bob - lift);
       if (mood === 'dead') ctx.rotate(0.25);                            // keeled over
-      ctx.drawImage(img, -hw / 2, -hh * 0.54, hw, hh);
+      ctx.drawImage(img, -hw / 2, -hh * 0.9, hw, hh);
     } else {                                                            // sprites still rasterizing
       ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.arc(h.x, h.y, g.cell * 0.16, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(h.x, h.y, g.cell * 0.16 * h.s, 0, Math.PI * 2); ctx.fill();
     }
     ctx.restore();
   }
@@ -758,55 +881,146 @@ function drawBulb(dt) {
   }
   bulb.rings = bulb.rings.filter(r => r.life < r.max);
 
-  /* brass screw base — it survives the blast */
+  /* ---------- the screw cap: a metal cylinder, lit from the upper left ---------- */
   bx.save();
-  const bg = bx.createLinearGradient(cx - 42, 0, cx + 42, 0);
-  bg.addColorStop(0, '#6b7590'); bg.addColorStop(0.35, '#d7dce8'); bg.addColorStop(0.62, '#9aa3ba'); bg.addColorStop(1, '#5c6780');
-  bx.fillStyle = bg;
-  bx.beginPath(); bx.moveTo(cx - 42, baseTop); bx.lineTo(cx + 42, baseTop); bx.lineTo(cx + 37, baseTop + 76); bx.lineTo(cx - 37, baseTop + 76); bx.closePath(); bx.fill();
-  bx.strokeStyle = 'rgba(30,40,70,.5)'; bx.lineWidth = 3.5;
-  for (let i = 0; i < 4; i++) { const y = baseTop + 13 + i * 16; bx.beginPath(); bx.moveTo(cx - 41 + i, y); bx.quadraticCurveTo(cx, y + 9, cx + 41 - i, y); bx.stroke(); }
-  bx.fillStyle = '#2b3350'; bx.beginPath(); bx.ellipse(cx, baseTop + 81, 22, 9, 0, 0, Math.PI * 2); bx.fill();
+  const capW = 44, capW2 = 38, capH = 78;
+  const metal = bx.createLinearGradient(cx - capW, 0, cx + capW, 0);
+  metal.addColorStop(0, '#333c56'); metal.addColorStop(0.16, '#78839f');
+  metal.addColorStop(0.36, '#e6ebf6'); metal.addColorStop(0.56, '#a8b1c7');
+  metal.addColorStop(0.8, '#626c86'); metal.addColorStop(1, '#2c3449');
+  bx.fillStyle = metal;
+  bx.beginPath();
+  bx.moveTo(cx - capW, baseTop); bx.lineTo(cx + capW, baseTop);
+  bx.lineTo(cx + capW2, baseTop + capH); bx.lineTo(cx - capW2, baseTop + capH);
+  bx.closePath(); bx.fill();
+  /* you look slightly down on it, so the top rim shows as an ellipse with the glass sunk into it */
+  bx.fillStyle = '#ccd4e6';
+  bx.beginPath(); bx.ellipse(cx, baseTop, capW, 10, 0, 0, Math.PI * 2); bx.fill();
+  bx.fillStyle = 'rgba(16,24,46,.5)';
+  bx.beginPath(); bx.ellipse(cx, baseTop + 1, capW * 0.7, 6, 0, 0, Math.PI * 2); bx.fill();
+  /* threads: every ridge catches the light on top and falls into shadow underneath */
+  for (let i = 0; i < 4; i++) {
+    const y = baseTop + 15 + i * 16, hw = capW - 1.5 - i * 1.6;
+    bx.strokeStyle = 'rgba(255,255,255,.34)'; bx.lineWidth = 3;
+    bx.beginPath(); bx.moveTo(cx - hw, y - 2); bx.quadraticCurveTo(cx, y + 7, cx + hw, y - 2); bx.stroke();
+    bx.strokeStyle = 'rgba(18,26,48,.55)'; bx.lineWidth = 4;
+    bx.beginPath(); bx.moveTo(cx - hw, y + 3); bx.quadraticCurveTo(cx, y + 12, cx + hw, y + 3); bx.stroke();
+  }
+  /* insulator ring and the contact button at the very bottom */
+  bx.fillStyle = '#1d2540';
+  bx.beginPath(); bx.ellipse(cx, baseTop + capH, capW2, 12, 0, 0, Math.PI * 2); bx.fill();
+  bx.fillStyle = '#525d7c';
+  bx.beginPath(); bx.ellipse(cx, baseTop + capH + 7, 17, 7.5, 0, 0, Math.PI * 2); bx.fill();
+  bx.fillStyle = 'rgba(255,255,255,.35)';
+  bx.beginPath(); bx.ellipse(cx - 5, baseTop + capH + 5, 6, 2.6, 0, 0, Math.PI * 2); bx.fill();
   bx.restore();
 
-  /* glass envelope + filament */
+  /* ---------- the glass: a ball with a lit side, a shadowed side and a rim light ---------- */
   const scale = broken ? 0 : bulb.reform;
   if (scale > 0.02) {
+    const lit = Math.min(1, G);
     bx.save();
     bx.translate(cx, cy); bx.scale(scale, scale); bx.translate(-cx, -cy);
-    bx.fillStyle = 'rgba(190,215,255,.20)';
-    bx.beginPath(); bx.moveTo(cx - 37, baseTop + 2); bx.quadraticCurveTo(cx - 50, cy + R * 0.45, cx - R * 0.72, cy + R * 0.3);
-    bx.lineTo(cx + R * 0.72, cy + R * 0.3); bx.quadraticCurveTo(cx + 50, cy + R * 0.45, cx + 37, baseTop + 2); bx.closePath(); bx.fill();
-    const gg = bx.createRadialGradient(cx - R * 0.3, cy - R * 0.35, R * 0.1, cx, cy, R);
-    gg.addColorStop(0, 'rgba(255,255,255,' + Math.min(0.95, 0.12 + 0.5 * G).toFixed(3) + ')');
-    gg.addColorStop(0.55, 'rgba(190,225,255,' + Math.min(0.8, 0.10 + 0.34 * G).toFixed(3) + ')');
-    gg.addColorStop(1, 'rgba(120,170,230,' + Math.min(0.7, 0.16 + 0.2 * G).toFixed(3) + ')');
-    bx.fillStyle = gg; bx.beginPath(); bx.arc(cx, cy, R, 0, Math.PI * 2); bx.fill();
-    bx.strokeStyle = 'rgba(210,235,255,' + Math.min(0.95, 0.45 + 0.4 * G).toFixed(3) + ')'; bx.lineWidth = 3.5; bx.stroke();
-    /* posts + coil */
-    bx.strokeStyle = 'rgba(180,200,230,.75)'; bx.lineWidth = 5; bx.lineCap = 'round';
-    bx.beginPath(); bx.moveTo(cx - 20, cy + R * 0.34); bx.lineTo(cx - 20, cy + 8); bx.moveTo(cx + 20, cy + R * 0.34); bx.lineTo(cx + 20, cy + 8); bx.stroke();
+
+    /* the neck flaring down into the cap, shaded round like a cone */
+    const neck = bx.createLinearGradient(cx - 48, 0, cx + 48, 0);
+    neck.addColorStop(0, 'rgba(52,80,136,.5)'); neck.addColorStop(0.34, 'rgba(168,198,240,.42)');
+    neck.addColorStop(0.64, 'rgba(104,140,196,.4)'); neck.addColorStop(1, 'rgba(40,66,118,.5)');
+    bx.fillStyle = neck;
+    bx.beginPath();                                    // shoulders curving out of the cap into the ball
+    bx.moveTo(cx - 41, baseTop + 3);
+    bx.quadraticCurveTo(cx - 52, cy + R * 0.86, cx - R * 0.62, cy + R * 0.74);
+    bx.quadraticCurveTo(cx, cy + R * 0.94, cx + R * 0.62, cy + R * 0.74);
+    bx.quadraticCurveTo(cx + 52, cy + R * 0.86, cx + 41, baseTop + 3);
+    bx.closePath(); bx.fill();
+
+    /* body of the glass — the light sits up and to the left, so the far side goes dark */
+    const gg = bx.createRadialGradient(cx - R * 0.36, cy - R * 0.42, R * 0.05, cx - R * 0.04, cy - R * 0.02, R * 1.08);
+    gg.addColorStop(0, 'rgba(255,255,255,' + (0.3 + 0.6 * lit).toFixed(3) + ')');
+    gg.addColorStop(0.42, 'rgba(198,226,255,' + (0.15 + 0.34 * lit).toFixed(3) + ')');
+    gg.addColorStop(0.8, 'rgba(96,140,205,' + (0.22 + 0.16 * lit).toFixed(3) + ')');
+    gg.addColorStop(1, 'rgba(48,78,140,.34)');
+    bx.fillStyle = gg;
+    bx.beginPath(); bx.arc(cx, cy, R, 0, Math.PI * 2); bx.fill();
+
+    /* when it is on, the whole volume glows from the filament outwards */
+    if (G > 0.03) {
+      const wg = bx.createRadialGradient(cx, cy + R * 0.05, R * 0.04, cx, cy, R);
+      wg.addColorStop(0, 'rgba(255,242,198,' + Math.min(0.92, 0.52 * G).toFixed(3) + ')');
+      wg.addColorStop(0.55, 'rgba(255,206,108,' + Math.min(0.6, 0.3 * G).toFixed(3) + ')');
+      wg.addColorStop(1, 'rgba(255,170,50,0)');
+      bx.fillStyle = wg;
+      bx.beginPath(); bx.arc(cx, cy, R, 0, Math.PI * 2); bx.fill();
+    }
+    /* the thickness of the glass, as a shadow hugging the bottom-right inside */
+    const ig = bx.createRadialGradient(cx + R * 0.28, cy + R * 0.3, R * 0.25, cx + R * 0.16, cy + R * 0.18, R * 1.02);
+    ig.addColorStop(0, 'rgba(8,18,44,0)'); ig.addColorStop(1, 'rgba(6,14,38,' + (0.42 - 0.18 * lit).toFixed(3) + ')');
+    bx.fillStyle = ig;
+    bx.beginPath(); bx.arc(cx, cy, R, 0, Math.PI * 2); bx.fill();
+
+    /* rim light wrapping the lower right edge */
     bx.save();
-    const hot = Math.min(1, G * 1.25);
-    bx.strokeStyle = flaring ? '#ffffff' : 'rgb(' + Math.round(120 + 135 * hot) + ',' + Math.round(80 + 150 * hot) + ',' + Math.round(70 + 90 * hot) + ')';
-    bx.lineWidth = 5 + hot * 2;
-    if (hot > 0.05) { bx.shadowColor = flaring ? '#ffffff' : 'rgba(255,205,110,' + Math.min(1, hot).toFixed(3) + ')'; bx.shadowBlur = 34 * Math.min(1.6, hot); }
-    bx.beginPath(); bx.moveTo(cx - 20, cy + 8);
-    for (let i = 0; i <= 8; i++) bx.lineTo(cx - 20 + i * 5, cy + 8 - (i % 2 ? 32 : 10) - Math.sin(bulb.t * 12 + i) * hot * (flaring ? 5 : 1.4));
-    bx.lineTo(cx + 20, cy + 8); bx.stroke();
+    bx.globalCompositeOperation = 'lighter';
+    bx.strokeStyle = 'rgba(140,200,255,.5)'; bx.lineWidth = 5; bx.lineCap = 'round';
+    bx.beginPath(); bx.arc(cx, cy, R - 3, Math.PI * 0.06, Math.PI * 0.64); bx.stroke();
     bx.restore();
-    if (flaring) drawArc(bx, cx - 20, cy + 8, cx + 20, cy + 8, 26, 'rgba(255,255,255,.9)', 3);
-    /* highlights */
-    bx.save(); bx.globalAlpha = 0.5; bx.strokeStyle = '#ffffff'; bx.lineWidth = 7; bx.lineCap = 'round';
-    bx.beginPath(); bx.arc(cx, cy, R * 0.78, Math.PI * 1.08, Math.PI * 1.38); bx.stroke();
-    bx.globalAlpha = 0.28; bx.lineWidth = 3.5;
-    bx.beginPath(); bx.arc(cx, cy, R * 0.86, Math.PI * 0.18, Math.PI * 0.34); bx.stroke();
+    bx.strokeStyle = 'rgba(214,236,255,' + (0.4 + 0.4 * lit).toFixed(3) + ')'; bx.lineWidth = 3;
+    bx.beginPath(); bx.arc(cx, cy, R, 0, Math.PI * 2); bx.stroke();
+
+    /* ---- the filament assembly, standing inside the glass ---- */
+    const hot = Math.min(1, G * 1.25);
+    /* glass stem holding the wires */
+    bx.fillStyle = 'rgba(206,228,255,.28)';
+    bx.beginPath();
+    bx.moveTo(cx - 13, cy + R * 0.34); bx.quadraticCurveTo(cx - 17, cy + 22, cx - 7, cy + 12);
+    bx.lineTo(cx + 7, cy + 12); bx.quadraticCurveTo(cx + 17, cy + 22, cx + 13, cy + R * 0.34);
+    bx.closePath(); bx.fill();
+    /* support wires */
+    bx.strokeStyle = 'rgba(176,196,230,.8)'; bx.lineWidth = 4.5; bx.lineCap = 'round';
+    bx.beginPath();
+    bx.moveTo(cx - 8, cy + 16); bx.lineTo(cx - 24, cy + 2);
+    bx.moveTo(cx + 8, cy + 16); bx.lineTo(cx + 24, cy + 2);
+    bx.stroke();
+    /* the coil: a row of little loops, so it reads as wound wire rather than a zigzag */
+    bx.save();
+    const coilCol = flaring ? '#ffffff'
+      : 'rgb(' + Math.round(126 + 129 * hot) + ',' + Math.round(84 + 152 * hot) + ',' + Math.round(74 + 96 * hot) + ')';
+    bx.strokeStyle = coilCol; bx.lineWidth = 2.6 + hot * 1.8; bx.lineCap = 'round';
+    if (hot > 0.05) { bx.shadowColor = flaring ? '#ffffff' : 'rgba(255,205,110,' + Math.min(1, hot).toFixed(3) + ')'; bx.shadowBlur = 30 * Math.min(1.6, hot); }
+    const loops = 6, span = 44, ly = cy - 10;
+    for (let i = 0; i < loops; i++) {
+      const lx = cx - span / 2 + (span / (loops - 1)) * i;
+      const wob = Math.sin(bulb.t * (flaring ? 16 : 3) + i * 0.9) * (flaring ? 3 : 0.8) * Math.max(0.2, hot);
+      bx.beginPath();
+      bx.ellipse(lx, ly + wob, 6, 17 + wob, 0, 0, Math.PI * 2);     // one turn of wire, seen edge on
+      bx.stroke();
+    }
+    bx.beginPath();                                    // the ends running down to the posts
+    bx.moveTo(cx - span / 2, ly + 15); bx.lineTo(cx - 24, cy + 2);
+    bx.moveTo(cx + span / 2, ly + 15); bx.lineTo(cx + 24, cy + 2);
+    bx.stroke();
+    bx.restore();
+    if (flaring) drawArc(bx, cx - 24, cy + 2, cx + 24, cy + 2, 26, 'rgba(255,255,255,.9)', 3);
+
+    /* ---- what sells the glass: the highlights ---- */
+    bx.save();
+    bx.globalCompositeOperation = 'lighter';
+    const sp = bx.createRadialGradient(cx - R * 0.4, cy - R * 0.44, 1, cx - R * 0.4, cy - R * 0.44, R * 0.44);
+    sp.addColorStop(0, 'rgba(255,255,255,.7)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    bx.fillStyle = sp;
+    bx.beginPath(); bx.ellipse(cx - R * 0.4, cy - R * 0.44, R * 0.34, R * 0.24, -0.5, 0, Math.PI * 2); bx.fill();
+    bx.globalAlpha = 0.85; bx.fillStyle = '#ffffff';
+    bx.beginPath(); bx.ellipse(cx - R * 0.5, cy - R * 0.5, R * 0.1, R * 0.055, -0.5, 0, Math.PI * 2); bx.fill();
+    bx.globalAlpha = 0.3; bx.strokeStyle = '#ffffff'; bx.lineWidth = 4.5; bx.lineCap = 'round';
+    bx.beginPath(); bx.arc(cx, cy, R * 0.82, Math.PI * 0.76, Math.PI * 1.04); bx.stroke();   // light wrapping the left edge
+    bx.globalAlpha = 0.2; bx.lineWidth = 3;
+    bx.beginPath(); bx.arc(cx, cy, R * 0.88, Math.PI * 0.2, Math.PI * 0.36); bx.stroke();
     bx.restore();
     bx.restore();
   } else if (broken) {
     /* jagged crown of glass left in the socket, with the snapped filament posts arcing */
-    bx.save(); bx.translate(cx, cy);
-    bx.fillStyle = 'rgba(190,225,255,.22)'; bx.strokeStyle = 'rgba(210,235,255,.55)'; bx.lineWidth = 3;
+    bx.save(); bx.translate(cx, baseTop + 2); bx.scale(0.68, 0.5);   // what is left sits down in the cap
+    bx.fillStyle = 'rgba(190,225,255,.22)'; bx.strokeStyle = 'rgba(210,235,255,.55)'; bx.lineWidth = 4;
     bx.beginPath(); bx.moveTo(-R * 0.6, R * 0.32);
     for (const [tx, ty] of [[-0.44, 0.02], [-0.32, 0.22], [-0.14, -0.06], [0.02, 0.2], [0.18, -0.02], [0.34, 0.2], [0.48, 0.04], [0.6, 0.32]]) bx.lineTo(tx * R, ty * R);
     bx.closePath(); bx.fill(); bx.stroke();
@@ -816,10 +1030,10 @@ function drawBulb(dt) {
     if (bulb.arc > 0 && Math.random() < 0.6) {                 // the socket keeps spitting
       bx.save(); bx.globalAlpha = Math.min(1, bulb.arc);
       bx.shadowColor = '#7ff0ff'; bx.shadowBlur = 18;
-      drawArc(bx, cx - 18, cy + R * 0.04, cx + 18, cy + R * 0.04, 22, '#bff4ff', 3);
-      drawArc(bx, cx - 18, cy + R * 0.04, cx + 18, cy + R * 0.04, 12, '#ffffff', 1.5);
+      drawArc(bx, cx - 14, baseTop - 10, cx + 14, baseTop - 10, 18, '#bff4ff', 3);
+      drawArc(bx, cx - 14, baseTop - 10, cx + 14, baseTop - 10, 10, '#ffffff', 1.5);
       bx.restore();
-      if (Math.random() < 0.25) bulb.sparks.push({ x: (Math.random() - 0.5) * 30, y: R * 0.05,
+      if (Math.random() < 0.25) bulb.sparks.push({ x: (Math.random() - 0.5) * 30, y: R * 0.86 - 14,
         vx: (Math.random() - 0.5) * 160, vy: 40 + Math.random() * 120, life: 0, max: 0.4 + Math.random() * 0.4 });
     }
   }
@@ -906,11 +1120,21 @@ function cellAt(e) {
   const rect = canvas.getBoundingClientRect();
   const x = (e.clientX - rect.left) / rect.width * canvas.width, y = (e.clientY - rect.top) / rect.height * canvas.height;
   const g = geom();
-  const c = Math.floor((x - g.ox) / g.cell), r = Math.floor((y - g.oy) / g.cell);
+  /* the reverse of proj(): drop a ray through the pointer onto the top surface of the pads */
+  const A = g.tileH * SIN_T, B = g.tileH * COS_T;
+  const Y = (g.cy - y) / g.F;
+  const den = COS_T - Y * SIN_T;
+  if (Math.abs(den) < 1e-6) return -1;
+  const bv = (A - Y * (g.D - B)) / den;
+  const z = g.D - B - bv * SIN_T;
+  if (z <= 1) return -1;
+  const bu = (x - g.cx) * z / g.F;
+  const fx_ = bu + g.bw / 2, fy_ = bv + g.bh / 2;
+  const c = Math.floor(fx_ / g.cell), r = Math.floor(fy_ / g.cell);
   if (c < 0 || r < 0 || c >= p.C || r >= p.R) return -1;
   /* only the middle of a cell counts, so brushing a corner never registers as a diagonal hop */
-  const dx = Math.abs((x - g.ox) - (c + 0.5) * g.cell), dy = Math.abs((y - g.oy) - (r + 0.5) * g.cell);
-  if (dx > g.cell * 0.42 || dy > g.cell * 0.42) return -1;
+  const dx = Math.abs(fx_ - (c + 0.5) * g.cell), dy = Math.abs(fy_ - (r + 0.5) * g.cell);
+  if (dx > g.cell * 0.42 || dy > g.cell * 0.46) return -1;
   return r * p.C + c;
 }
 canvas.addEventListener('pointerdown', e => {
@@ -1086,4 +1310,4 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
 
 showMain();
 loop();
-window.ZIP = { game, fx, makePuzzle, hamiltonianPath, tryMove, tapCell, keyMove, startRun, showMain, newLevel, resetWire, bulb, bulbBoom, bulbLight, drawBulb, levelSpec, timeUp, startClock, RUN_SECONDS };
+window.ZIP = { game, fx, geom, proj, centre, cellAt, makePuzzle, hamiltonianPath, tryMove, tapCell, keyMove, startRun, showMain, newLevel, resetWire, bulb, bulbBoom, bulbLight, drawBulb, levelSpec, timeUp, startClock, RUN_SECONDS };

@@ -2,9 +2,9 @@
    Bump CACHE_VERSION whenever any file changes (keep it in sync with the ?v= tags in index.html). */
 'use strict';
 
-const CACHE_VERSION = 'v20260924l';
+const CACHE_VERSION = 'v20260925a';
 const CACHE_NAME = 'electrical-troll-' + CACHE_VERSION;
-const V = '?v=20260924l';
+const V = '?v=20260925a';
 
 /* App shell — everything the game needs. Query strings must match index.html exactly. */
 const PRECACHE = [
