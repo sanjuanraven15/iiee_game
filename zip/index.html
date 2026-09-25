@@ -11,8 +11,8 @@
 <link rel="apple-touch-icon" href="images/logo.png">
 <link rel="icon" href="images/logo.png">
 <title>🔌 Zip — Electrical Circuit Puzzle</title>
-<link rel="stylesheet" href="css/style.css?v=20260925b">
-<link rel="stylesheet" href="zip.css?v=20260925b">
+<link rel="stylesheet" href="css/style.css?v=20260925h">
+<link rel="stylesheet" href="zip.css?v=20260925h">
 </head>
 <body>
 <div id="viewport">
@@ -28,6 +28,7 @@
       <button class="btn" id="btn-scoreboard">🏆 SCOREBOARD</button>
       <a class="btn ghost small hub-link" href="../index.html">◀ GAME ZONE</a>
     </div>
+    <div class="top3" id="main-top3" aria-label="Top 3 players"></div>
     <div class="hint-box greet" id="main-greet">
       <svg class="mascot" id="main-mascot" viewBox="0 0 200 232" aria-hidden="true"></svg>
       <div class="balloon">Hi, I am Busby! One wire from 1 to the last terminal — every number in order, every cell filled. You get two minutes and three fuses; every circuit you close counts. Ready?</div>
@@ -79,6 +80,7 @@
         <div class="hud-stats"><span id="hud-score">★ 0</span></div>
       </div>
     </div>
+    <div class="game-top3" id="game-top3" aria-hidden="true"></div>
     <div class="zip-body">
       <canvas id="board" width="900" height="900"></canvas>
       <aside class="zip-side">
@@ -149,7 +151,7 @@
   <div class="rotate-sub">This game plays in landscape</div>
 </div>
 
-<script src="js/mascot.js?v=20260925b"></script>
-<script src="zip.js?v=20260925b"></script>
+<script src="js/mascot.js?v=20260925h"></script>
+<script src="zip.js?v=20260925h"></script>
 </body>
 </html>

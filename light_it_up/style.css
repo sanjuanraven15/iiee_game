@@ -534,3 +534,51 @@ body.boom-body #app { animation: bodyshake .9s ease; }
 #app.tall .inputs-hint { font-size: 54px; }
 #app.tall #result-detail { font-size: 66px; }
 #app.tall #mascot-result { width: 400px; height: 460px; }
+
+/* ---------- Top 3 players on the main screen (bottom-right, opposite Busby) ---------- */
+.top3 {
+  position: absolute; right: 40px; bottom: 40px; width: 420px; z-index: 5;
+  background: var(--panel); border: 4px solid var(--yellow); border-radius: 26px; padding: 14px 24px 16px;
+  box-shadow: 0 0 40px rgba(255,214,10,.25), 0 14px 30px rgba(0,0,0,.5);
+}
+.top3-title { font-family: var(--font-display); font-size: 38px; letter-spacing: 3px; color: var(--yellow); text-align: center; margin-bottom: 4px; text-shadow: 0 0 12px rgba(255,214,10,.5); }
+.top3-list { list-style: none; margin: 0; padding: 0; }
+.top3-list li { display: flex; align-items: center; gap: 14px; padding: 6px 0; border-bottom: 2px solid var(--line); }
+.top3-list li:last-child { border-bottom: 0; }
+.top3-medal { font-size: 34px; width: 44px; text-align: center; flex: none; }
+.top3-name { flex: 1; min-width: 0; font-family: var(--font-display); font-size: 36px; letter-spacing: 2px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.top3-list li:first-child .top3-name { color: var(--yellow); }
+.top3-score { font-family: var(--font-display); font-size: 36px; letter-spacing: 1px; color: var(--yellow); white-space: nowrap; }
+.top3-empty { font-weight: 900; font-size: 26px; color: var(--muted); text-align: center; padding: 10px 0; }
+#app.compact .top3 { width: 480px; }
+#app.compact .top3-name, #app.compact .top3-score { font-size: 42px; }
+#app.portrait .top3 { position: static; width: 1300px; max-width: 100%; padding: 24px 48px 28px; border-width: 6px; border-radius: 36px; flex: none; }
+#app.portrait .top3-title { font-size: 70px; }
+#app.portrait .top3-list li { gap: 24px; padding: 14px 0; }
+#app.portrait .top3-medal { font-size: 64px; width: 90px; }
+#app.portrait .top3-name, #app.portrait .top3-score { font-size: 66px; }
+#app.portrait .top3-empty { font-size: 48px; }
+
+/* ---------- Top 3 strip on the play screen: faint, never in the way of a tap ---------- */
+.game-top3 {
+  display: flex; align-items: center; justify-content: center; gap: 22px; flex: none;
+  font-family: var(--font-display); font-size: 28px; letter-spacing: 2px; color: var(--text); white-space: nowrap;
+  background: rgba(3, 6, 16, .45); border: 2px solid rgba(255, 214, 10, .35); border-radius: 40px; padding: 6px 26px;
+  opacity: .62; pointer-events: none;
+}
+.game-top3 .gt3-label { color: var(--yellow); }
+.game-top3 b { font-weight: 400; color: var(--yellow); }
+.game-top3:empty { display: none; }
+#app.compact .game-top3 { font-size: 36px; padding: 8px 30px; }
+#app.portrait .game-top3 { font-size: 46px; padding: 10px 40px; gap: 30px; border-width: 3px; }
+#game-top3 { margin-top: 2px; }
+
+/* ---------- low-FX mode (set automatically on devices that can't keep up, or with ?lowfx=1) ----------
+   drop the effects that repaint every frame; the game itself looks and plays the same */
+#app.low-fx #stage *, #app.low-fx .mascot { filter: none !important; }
+#app.low-fx .ray, #app.low-fx .spark, #app.low-fx .zzz, #app.low-fx #brand img, #app.low-fx #mascot-home g { animation: none !important; }
+#app.low-fx .bubble { animation: pop .3s ease, bubble-pulse-lite 1.6s ease-in-out .3s infinite; box-shadow: 0 6px 0 rgba(0,0,0,.35); }
+@keyframes bubble-pulse-lite { 0%, 100% { border-color: #c9d3f5; } 50% { border-color: var(--yellow); } }
+#app.low-fx .stage-wrap { box-shadow: 0 0 0 5px var(--line); }
+#app.low-fx .timer, #app.low-fx .btn, #app.low-fx .card, #app.low-fx .summary-card, #app.low-fx .top3, #app.low-fx .balloon, #app.low-fx #brand img { box-shadow: none; }
+#app.low-fx .title, #app.low-fx .tagline, #app.low-fx .subtitle, #app.low-fx .hud-level { text-shadow: none; }

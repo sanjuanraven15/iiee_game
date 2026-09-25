@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="images/logo.png">
 <link rel="icon" href="images/logo.png">
 <title>💡 Light It Up! — Fuji-Haya</title>
-<link rel="stylesheet" href="style.css?v=51">
+<link rel="stylesheet" href="style.css?v=54">
 </head>
 <body>
 <div id="viewport">
@@ -26,6 +26,7 @@
       <div class="lit-hud-centre">
         <div class="timer" id="timer"><span class="timer-label">TIME</span><span class="timer-value" id="timer-value">2:00</span></div>
         <div class="level-dots" id="level-dots"></div>
+        <div class="game-top3" id="game-top3" aria-hidden="true"></div>
       </div>
       <div class="lit-hud-right">
         <div class="hud-player" id="hud-player"></div>
@@ -87,6 +88,7 @@
       <a class="btn ghost small hub-link" href="../index.html">◀ GAME ZONE</a>
     </div>
     <p class="inputs-hint">👆 Touch &nbsp;·&nbsp; 🖱️ Mouse &nbsp;·&nbsp; 🎮 Controller <span id="gp-status"></span></p>
+    <div class="top3" id="main-top3" aria-label="Top 3 players"></div>
     <div class="hint-box greet" id="main-greet">
       <svg class="mascot" id="mascot-home" viewBox="0 0 200 230" aria-hidden="true"></svg>
       <div class="balloon">Hi, I'm Busby! Drag cables between the dots to light the bulbs. Never wire <b>+ straight to −</b> — the bulbs explode and you lose precious seconds. Ready?</div>
@@ -224,6 +226,6 @@
 <!-- Gamepad glove cursor -->
 <div id="gp-cursor" class="hidden">🧤</div>
 
-<script src="game.js?v=40"></script>
+<script src="game.js?v=43"></script>
 </body>
 </html>

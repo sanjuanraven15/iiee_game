@@ -237,14 +237,16 @@
     const next = at < 0 ? 0 : (at + step + tiles.length) % tiles.length;
     tiles[next].focus();
   });
-  /* offline: the hub keeps its own small cache; each game caches itself */
+  /* offline: ONE worker for the whole site (sw.js at the site root) saves the hub and every game,
+     so all of them open with no connection. Older per-game workers inside this site are retired;
+     workers of other sites on the same domain (e.g. other GitHub Pages projects) are left alone. */
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     window.addEventListener('load', async () => {
       try {
-        const here = new URL('./', location.href).href;
+        const root = new URL('./', location.href).href;
         for (const r of await navigator.serviceWorker.getRegistrations())
-          if (r.scope === here && !/hub-sw\.js$/.test(r.active && r.active.scriptURL || '')) await r.unregister();
-        await navigator.serviceWorker.register('hub-sw.js', { updateViaCache: 'none' });
+          if (r.scope.startsWith(root) && r.scope !== root) await r.unregister();
+        await navigator.serviceWorker.register(root + 'sw.js', { scope: root, updateViaCache: 'none' });
       } catch (e) { /* offline support is a bonus, never a blocker */ }
     });
   }

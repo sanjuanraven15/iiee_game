@@ -490,3 +490,50 @@ html, body {
 
 /* link back to the game-zone landing page */
 .hub-link { text-decoration: none; display: flex; align-items: center; justify-content: center; }
+
+/* ---------- Top 3 players on the main screen (bottom-right, opposite Busby) ---------- */
+.top3 {
+  position: absolute; right: 40px; bottom: 40px; width: 420px; z-index: 5;
+  background: var(--panel); border: 4px solid var(--yellow); border-radius: 26px; padding: 14px 24px 16px;
+  box-shadow: 0 0 40px rgba(255,214,10,.25), 0 14px 30px rgba(0,0,0,.5);
+}
+.top3-title { font-family: var(--font-display); font-size: 38px; letter-spacing: 3px; color: var(--yellow); text-align: center; margin-bottom: 4px; text-shadow: 0 0 12px rgba(255,214,10,.5); }
+.top3-list { list-style: none; margin: 0; padding: 0; }
+.top3-list li { display: flex; align-items: center; gap: 14px; padding: 6px 0; border-bottom: 2px solid var(--line); }
+.top3-list li:last-child { border-bottom: 0; }
+.top3-medal { font-size: 34px; width: 44px; text-align: center; flex: none; }
+.top3-name { flex: 1; min-width: 0; font-family: var(--font-display); font-size: 36px; letter-spacing: 2px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.top3-list li:first-child .top3-name { color: var(--yellow); }
+.top3-score { font-family: var(--font-display); font-size: 36px; letter-spacing: 1px; color: var(--yellow); white-space: nowrap; }
+.top3-empty { font-weight: 900; font-size: 26px; color: var(--muted); text-align: center; padding: 10px 0; }
+#stage.compact .top3 { width: 480px; }
+#stage.compact .top3-name, #stage.compact .top3-score { font-size: 42px; }
+#stage.portrait .top3 { position: static; width: 1300px; max-width: 100%; padding: 24px 48px 28px; border-width: 6px; border-radius: 36px; flex: none; }
+#stage.portrait .top3-title { font-size: 70px; }
+#stage.portrait .top3-list li { gap: 24px; padding: 14px 0; }
+#stage.portrait .top3-medal { font-size: 64px; width: 90px; }
+#stage.portrait .top3-name, #stage.portrait .top3-score { font-size: 66px; }
+#stage.portrait .top3-empty { font-size: 48px; }
+
+/* ---------- Top 3 strip on the play screen: faint, never in the way of a tap ---------- */
+.game-top3 {
+  display: flex; align-items: center; justify-content: center; gap: 22px; flex: none;
+  font-family: var(--font-display); font-size: 28px; letter-spacing: 2px; color: var(--text); white-space: nowrap;
+  background: rgba(3, 6, 16, .45); border: 2px solid rgba(255, 214, 10, .35); border-radius: 40px; padding: 6px 26px;
+  opacity: .62; pointer-events: none;
+}
+.game-top3 .gt3-label { color: var(--yellow); }
+.game-top3 b { font-weight: 400; color: var(--yellow); }
+.game-top3:empty { display: none; }
+#stage.compact .game-top3 { font-size: 36px; padding: 8px 30px; }
+#stage.portrait .game-top3 { font-size: 46px; padding: 10px 40px; gap: 30px; border-width: 3px; }
+/* Troll: the HUD floats over the world, so the strip sits top-right under it (Busby's hints use the left) */
+#game-top3 { position: absolute; top: 122px; right: 140px; z-index: 6; }
+#stage.portrait #game-top3 { top: 250px; left: 50%; right: auto; transform: translateX(-50%); }
+
+/* ---------- low-FX mode (set automatically on devices that can't keep up) ----------
+   drop the CSS effects that repaint every frame; the game itself looks and plays the same */
+#stage.low-fx .mascot, #stage.low-fx .fuses { filter: none !important; }
+#stage.low-fx #brand img, #stage.low-fx .mascot .bounce, #stage.low-fx #main-greet .mascot g { animation: none !important; }
+#stage.low-fx .btn, #stage.low-fx .balloon, #stage.low-fx .toast-card, #stage.low-fx .summary-card, #stage.low-fx .top3, #stage.low-fx #brand img, #stage.low-fx .ctrl { box-shadow: none; }
+#stage.low-fx .title, #stage.low-fx .tagline, #stage.low-fx .subtitle, #stage.low-fx .hud-level, #stage.low-fx .hud-turn, #stage.low-fx .zip-msg { text-shadow: none; }

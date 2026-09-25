@@ -222,13 +222,16 @@ class Game {
   start() {
     if (this.running) return;
     this.running = true;
-    this.last = this.lastFrame = performance.now();
+    this.last = this.lastFrame = this.lastRaf = performance.now();
     requestAnimationFrame(this.loop);
-    /* watchdog: some TV browsers throttle requestAnimationFrame — keep the game alive via timer */
-    /* only when frames have truly stalled — a merely slow frame must not trigger extra (costly) redraws */
+    /* watchdog: some TV / phone browsers throttle or pause requestAnimationFrame, which would freeze the
+       traps. Once rAF has gone quiet for a moment the timer drives the game at full speed; while rAF is
+       alive (even if slow) the timer stays out of the way so it never piles extra redraws on a busy device. */
     this.watchdog = setInterval(() => {
-      if (this.running && performance.now() - this.lastFrame > 150) this.loop(performance.now(), true);
-    }, 50);
+      if (!this.running) return;
+      const now = performance.now();
+      if (now - this.lastRaf > 100 && now - this.lastFrame > 12) this.loop(now, true);
+    }, 16);
   }
   stop() { this.running = false; clearInterval(this.watchdog); }
 
@@ -304,6 +307,7 @@ class Game {
   loop(now, manual) {
     if (!this.running) return;
     this.lastFrame = now;
+    if (!manual) this.lastRaf = now;
     let dt = (now - this.last) / 1000;
     this.last = now;
     if (!manual) this.governPerf(dt);
@@ -326,7 +330,7 @@ class Game {
     p.slowFor = p.ema > 24 ? p.slowFor + dt : 0;          // ~40 fps or worse, for a while
     if (p.slowFor < 1.5 || p.level >= 3) return;
     p.level++; p.slowFor = 0; p.ema = 16;
-    if (p.level === 1) this.lowFx = true;
+    if (p.level === 1) { this.lowFx = true; const st = document.getElementById('stage'); if (st) st.classList.add('low-fx'); }
     else { this.qMul *= 0.75; this.resize(this.viewW, this.viewH); }
   }
 

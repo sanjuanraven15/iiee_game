@@ -53,15 +53,17 @@
   if (window.visualViewport) window.visualViewport.addEventListener('resize', fitStage);
   fitStage();
 
-  /* ---------- offline: register the service worker (needs https or localhost) ---------- */
+  /* offline: ONE worker for the whole site (sw.js at the site root) saves the hub and every game,
+     so all of them open with no connection. Older per-game workers inside this site are retired;
+     workers of other sites on the same domain (e.g. other GitHub Pages projects) are left alone. */
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     window.addEventListener('load', async () => {
       try {
-        /* a worker registered from an older folder layout would keep serving stale files — drop it */
-        const here = new URL('./', location.href).href;
-        for (const r of await navigator.serviceWorker.getRegistrations()) if (!r.scope.startsWith(here)) await r.unregister();
-        await navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' });
-      } catch (err) { console.warn('Service worker not registered:', err); }
+        const root = new URL('../', location.href).href;
+        for (const r of await navigator.serviceWorker.getRegistrations())
+          if (r.scope.startsWith(root) && r.scope !== root) await r.unregister();
+        await navigator.serviceWorker.register(root + 'sw.js', { scope: root, updateViaCache: 'none' });
+      } catch (e) { /* offline support is a bonus, never a blocker */ }
     });
   }
 
@@ -134,6 +136,7 @@
 
   /* ---------- turn flow ---------- */
   function startTurn(name) {
+    renderTop3(topScores(3), ' ★');
     turnPlayer = name;
     getPlayer(name); savePlayers();
     game.startTurn(TURN_LIVES, (Date.now() ^ (Math.random() * 0xffffffff)) >>> 0);
@@ -279,7 +282,21 @@
   $('name-cancel').addEventListener('click', showMain);
 
   /* ---------- menus ---------- */
+  /* Top 3 card on the main screen: medal, name, score */
+  function renderTop3(rows, unit) {
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    const medals = ['🥇', '🥈', '🥉'];
+    $('main-top3').innerHTML = '<div class="top3-title">🏆 TOP 3 PLAYERS</div>' + (rows.length
+      ? '<ol class="top3-list">' + rows.slice(0, 3).map((r, i) => `<li><span class="top3-medal">${medals[i]}</span><span class="top3-name">${esc(r.name)}</span><span class="top3-score">${r.score.toLocaleString('en-US')}${unit}</span></li>`).join('') + '</ol>'
+      : '<div class="top3-empty">No scores yet — be the first!</div>');
+    /* the same three, as a faint strip on the play screen */
+    const strip = $('game-top3');
+    if (strip) strip.innerHTML = '<span class="gt3-label">🏆 TOP 3</span>' + (rows.length
+      ? rows.slice(0, 3).map((r, i) => `<span class="gt3-item">${medals[i]} ${esc(r.name)} <b>${r.score.toLocaleString('en-US')}${unit}</b></span>`).join('')
+      : '<span class="gt3-item">BE THE FIRST!</span>');
+  }
   function showMain() {
+    renderTop3(topScores(3), ' ★');
     const best = topScores(1)[0];
     $('main-best').textContent = best ? `🏆 HIGH SCORE: ${best.name} — ${fmtPts(best.score)}` : 'BE THE FIRST ON THE SCOREBOARD!';
     $('btn-play-turn').textContent = '⚡ PLAY — ' + TURN_LIVES + ' LIVES';

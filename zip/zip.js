@@ -757,6 +757,7 @@ let lastFrame = performance.now();
 function loop() {
   raf = requestAnimationFrame(loop);
   const now = performance.now(), dt = Math.min(0.05, (now - lastFrame) / 1000);
+  governPerf(now - lastFrame);
   lastFrame = now;
   if (current === 'game') { drawBulb(dt); draw(); }        // keeps burning / smoking while a message is up
   if (!game.active) return;
@@ -779,6 +780,21 @@ function loop() {
    shockwave, embers and sparks rain down, smoke rolls up, and the bare socket keeps arcing for a while
    before a new bulb screws itself in. ---------- */
 const bulbCv = $('bulb'), bx = bulbCv.getContext('2d');
+/* ---------- smoothness guard ----------
+   Glow blur is the costliest thing Zip draws. If a device keeps missing frames during play, the blur
+   (and the stage's CSS glow effects, via .low-fx) switch off for the rest of the visit. */
+const perf = { ema: 16, slowFor: 0, lowFx: /[?&]lowfx=1/.test(location.search) };
+const BLUR = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'shadowBlur');
+for (const c of [ctx, bx]) if (BLUR && BLUR.set) Object.defineProperty(c, 'shadowBlur', {
+  configurable: true, get() { return BLUR.get.call(this); }, set(v) { BLUR.set.call(this, perf.lowFx ? 0 : v); }
+});
+if (perf.lowFx) $('stage').classList.add('low-fx');
+function governPerf(dtMs) {
+  if (perf.lowFx || current !== 'game' || document.hidden || dtMs <= 0 || dtMs > 250) return;
+  perf.ema += (dtMs - perf.ema) * 0.05;
+  perf.slowFor = perf.ema > 24 ? perf.slowFor + dtMs : 0;
+  if (perf.slowFor > 1500) { perf.lowFx = true; $('stage').classList.add('low-fx'); }
+}
 const bulb = { glow: 0, t: 0, mode: 'ok', shards: [], smoke: [], sparks: [], embers: [], rings: [],
   flash: 0, white: 0, shake: 0, lit: false, litT: 0, reform: 1, arc: 0 };
 
@@ -1196,7 +1212,21 @@ function show(name) {
   for (const k in screens) screens[k].classList.toggle('active', k === name);
   current = name; $('stage').dataset.screen = name;
 }
+/* Top 3 card on the main screen: medal, name, score */
+function renderTop3(rows, unit) {
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const medals = ['🥇', '🥈', '🥉'];
+  $('main-top3').innerHTML = '<div class="top3-title">🏆 TOP 3 PLAYERS</div>' + (rows.length
+    ? '<ol class="top3-list">' + rows.slice(0, 3).map((r, i) => `<li><span class="top3-medal">${medals[i]}</span><span class="top3-name">${esc(r.name)}</span><span class="top3-score">${r.score.toLocaleString('en-US')}${unit}</span></li>`).join('') + '</ol>'
+    : '<div class="top3-empty">No scores yet — be the first!</div>');
+  /* the same three, as a faint strip on the play screen */
+  const strip = $('game-top3');
+  if (strip) strip.innerHTML = '<span class="gt3-label">🏆 TOP 3</span>' + (rows.length
+    ? rows.slice(0, 3).map((r, i) => `<span class="gt3-item">${medals[i]} ${esc(r.name)} <b>${r.score.toLocaleString('en-US')}${unit}</b></span>`).join('')
+    : '<span class="gt3-item">BE THE FIRST!</span>');
+}
 function showMain() {
+  renderTop3(loadScores(), ' ⚡');
   const top = loadScores()[0];
   $('main-best').textContent = top ? `🏆 TOP: ${top.name} — ${top.score} CIRCUIT${top.score === 1 ? '' : 'S'} IN 2 MINUTES` : 'BE THE FIRST ON THE SCOREBOARD!';
   renderMascot('idle', $('main-mascot'), 'images/logo.png');
@@ -1211,6 +1241,7 @@ function showScores() {
   show('scores');
 }
 function startRun(name) {
+  renderTop3(loadScores(), ' ⚡');
   game.player = name; game.level = 1; game.score = 0; game.fuses = FUSES; game.active = true; game.busy = false;
   game.timeLeft = RUN_SECONDS; game.started = false;     // one three-minute clock, started by the first move
   $('hud-player').textContent = name; $('hud-score').textContent = '⚡ 0';
@@ -1294,14 +1325,16 @@ window.addEventListener('orientationchange', () => setTimeout(fitStage, 150));
 if (window.visualViewport) window.visualViewport.addEventListener('resize', fitStage);
 fitStage();
 
-/* offline: Zip keeps its own service worker and cache */
+/* offline: ONE worker for the whole site (sw.js at the site root) saves the hub and every game,
+   so all of them open with no connection. Older per-game workers inside this site are retired;
+   workers of other sites on the same domain (e.g. other GitHub Pages projects) are left alone. */
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   window.addEventListener('load', async () => {
     try {
-      /* a worker registered from an older folder layout would keep serving stale files — drop it */
-      const here = new URL('./', location.href).href;
-      for (const r of await navigator.serviceWorker.getRegistrations()) if (!r.scope.startsWith(here)) await r.unregister();
-      await navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' });
+      const root = new URL('../', location.href).href;
+      for (const r of await navigator.serviceWorker.getRegistrations())
+        if (r.scope.startsWith(root) && r.scope !== root) await r.unregister();
+      await navigator.serviceWorker.register(root + 'sw.js', { scope: root, updateViaCache: 'none' });
     } catch (e) { /* offline support is a bonus, never a blocker */ }
   });
 }

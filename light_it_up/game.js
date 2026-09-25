@@ -1611,6 +1611,7 @@
     $("app").dataset.screen = id || "game"; // lets the CSS size the logo / corner buttons per screen
   };
   function startTurn() {
+    renderTop3(loadBoard().sort((a, b) => b.score - a.score || a.t - b.t), " pts");
     playing = true;
     cleared = 0;
     timeLeft = GAME_SECONDS;
@@ -1762,7 +1763,21 @@
       /[&<>"]/g,
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
     );
+  /* Top 3 card on the main screen: medal, name, score */
+  function renderTop3(rows, unit) {
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    const medals = ['🥇', '🥈', '🥉'];
+    $('main-top3').innerHTML = '<div class="top3-title">🏆 TOP 3 PLAYERS</div>' + (rows.length
+      ? '<ol class="top3-list">' + rows.slice(0, 3).map((r, i) => `<li><span class="top3-medal">${medals[i]}</span><span class="top3-name">${esc(r.name)}</span><span class="top3-score">${r.score.toLocaleString('en-US')}${unit}</span></li>`).join('') + '</ol>'
+      : '<div class="top3-empty">No scores yet — be the first!</div>');
+    /* the same three, as a faint strip on the play screen */
+    const strip = $('game-top3');
+    if (strip) strip.innerHTML = '<span class="gt3-label">🏆 TOP 3</span>' + (rows.length
+      ? rows.slice(0, 3).map((r, i) => `<span class="gt3-item">${medals[i]} ${esc(r.name)} <b>${r.score.toLocaleString('en-US')}${unit}</b></span>`).join('')
+      : '<span class="gt3-item">BE THE FIRST!</span>');
+  }
   function showHome() {
+    renderTop3(loadBoard().sort((a, b) => b.score - a.score || a.t - b.t), " pts");
     clearTimeout(idleTimer);
     show("home");
   }
@@ -2125,14 +2140,22 @@
   }
 
   /* ---------- Confetti ---------- */
+  /* The effects canvas covers the board in stage units (up to ~1900×3000 on an upright phone);
+     keep its pixels at the screen's real resolution and draw through a scale, so bursts stay cheap. */
+  function sizeFx(cv, ctx) {
+    const W = cv.clientWidth, H = cv.clientHeight;
+    const k = Math.max(0.25, Math.min(1, (cv.getBoundingClientRect().width * Math.min(devicePixelRatio || 1, 2)) / Math.max(W, 1)));
+    cv.width = Math.round(W * k); cv.height = Math.round(H * k);
+    ctx.setTransform(k, 0, 0, k, 0, 0);
+    return [W, H];
+  }
   function confetti() {
     const cv = $("confetti"),
       ctx = cv.getContext("2d");
-    cv.width = cv.clientWidth;
-    cv.height = cv.clientHeight;
+    const [W, H] = sizeFx(cv, ctx); // drawn in stage units, stored at screen resolution
     const ps = Array.from({ length: 160 }, () => ({
-      x: Math.random() * cv.width,
-      y: -20 - Math.random() * cv.height * 0.5,
+      x: Math.random() * W,
+      y: -20 - Math.random() * H * 0.5,
       vx: (Math.random() - 0.5) * 3,
       vy: 2 + Math.random() * 4,
       r: 5 + Math.random() * 7,
@@ -2142,7 +2165,7 @@
     }));
     const t0 = performance.now();
     (function frame(t) {
-      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.clearRect(0, 0, W, H);
       ps.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
@@ -2155,7 +2178,7 @@
         ctx.restore();
       });
       if (t - t0 < 3500) requestAnimationFrame(frame);
-      else ctx.clearRect(0, 0, cv.width, cv.height);
+      else ctx.clearRect(0, 0, W, H);
     })(t0);
   }
 
@@ -2163,8 +2186,7 @@
   function debris() {
     const cv = $("confetti"),
       ctx = cv.getContext("2d");
-    cv.width = cv.clientWidth;
-    cv.height = cv.clientHeight;
+    const [W, H] = sizeFx(cv, ctx); // drawn in stage units, stored at screen resolution
     const svg = $("stage"),
       ctm = svg.getScreenCTM(),
       box = cv.getBoundingClientRect();
@@ -2174,7 +2196,7 @@
       pt.y = y;
       const s = pt.matrixTransform(ctm);
       // screen pixels → canvas pixels (the whole game is scaled to fit the screen)
-      return [((s.x - box.left) * cv.width) / box.width, ((s.y - box.top) * cv.height) / box.height];
+      return [((s.x - box.left) * W) / box.width, ((s.y - box.top) * H) / box.height];
     };
     const COL = [
       "#ff6a00",
@@ -2208,7 +2230,7 @@
       });
     const t0 = performance.now();
     (function frame(t) {
-      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.clearRect(0, 0, W, H);
       ps.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
@@ -2226,7 +2248,7 @@
         ctx.restore();
       });
       if (t - t0 < 2000) requestAnimationFrame(frame);
-      else ctx.clearRect(0, 0, cv.width, cv.height);
+      else ctx.clearRect(0, 0, W, H);
     })(t0);
   }
 
@@ -2738,6 +2760,39 @@
   }
   addEventListener("resize", onResize);
   addEventListener("orientationchange", onResize);
+
+  /* ---------- Smoothness guard ----------
+     The board is SVG + CSS animation (glowing bulbs, drop shadows, a pulsing hint balloon). If a device
+     keeps missing frames during a turn, the costly bits switch off for the rest of the visit (.low-fx). */
+  (function watchFrames() {
+    let last = performance.now(), ema = 16, slowFor = 0;
+    const tick = (now) => {
+      const dt = now - last;
+      last = now;
+      if (playing && !document.hidden && dt > 0 && dt < 250) {
+        ema += (dt - ema) * 0.05;
+        slowFor = ema > 24 ? slowFor + dt : 0;
+        if (slowFor > 1500) { $("app").classList.add("low-fx"); return; }   // done: stop watching
+      }
+      requestAnimationFrame(tick);
+    };
+    if (/[?&]lowfx=1/.test(location.search) || matchMedia("(prefers-reduced-motion: reduce)").matches) $("app").classList.add("low-fx");
+    else requestAnimationFrame(tick);
+  })();
+
+  /* offline: ONE worker for the whole site (sw.js at the site root) saves the hub and every game,
+     so all of them open with no connection. Older per-game workers inside this site are retired;
+     workers of other sites on the same domain (e.g. other GitHub Pages projects) are left alone. */
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener('load', async () => {
+      try {
+        const root = new URL('../', location.href).href;
+        for (const r of await navigator.serviceWorker.getRegistrations())
+          if (r.scope.startsWith(root) && r.scope !== root) await r.unregister();
+        await navigator.serviceWorker.register(root + 'sw.js', { scope: root, updateViaCache: 'none' });
+      } catch (e) { /* offline support is a bonus, never a blocker */ }
+    });
+  }
 
   mascot("happy");
   mascot("cheer", "mascot-home");
