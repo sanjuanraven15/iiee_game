@@ -44,7 +44,7 @@
     stage.classList.toggle('compact', s < 0.5);                // bigger touch targets on small screens
     stage.classList.toggle('portrait', portrait);
     if (gameRef) {
-      gameRef.resize(stageW, stageH);
+      gameRef.resize(stageW, stageH, s);
       stage.style.setProperty('--panel-h', (gameRef.panelH || 230) + 'px');   // the buttons sit in the drawn deck
     }
   }

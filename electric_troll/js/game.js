@@ -12,6 +12,20 @@ class Game {
   constructor(canvas, callbacks) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
+    /* Render quality. The stage is laid out in big design pixels (1920 wide, up to ~4000 tall on an
+       upright phone) but a phone only shows a fraction of that — so the canvas is drawn at the
+       screen's real resolution (q ≤ 1) and scaled up. qMul / lowFx are lowered automatically if the
+       device still can't keep up (see governPerf). */
+    this.q = 1; this.qMul = 1; this.lowFx = false; this.screenScale = 1;
+    this.perf = { ema: 16, slowFor: 0, level: 0 };
+    const blurDesc = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'shadowBlur');
+    const game = this;
+    /* glow blur is measured in canvas pixels, not design pixels: scale it with q, drop it entirely in low-FX mode */
+    if (blurDesc && blurDesc.set) Object.defineProperty(this.ctx, 'shadowBlur', {
+      configurable: true,
+      get() { return blurDesc.get.call(this); },
+      set(v) { blurDesc.set.call(this, game.lowFx ? 0 : v * game.q); }
+    });
     this.cb = callbacks;             // { onDeath(msg), onComplete(info), onTick(timer) }
     this.input = { left: false, right: false, jump: false };
     this.jumpWasHeld = false;
@@ -49,11 +63,15 @@ class Game {
   /* The stage can be wider (or taller) than 16:9 to fill the screen; the 1920x1080 world sits inside it.
      Landscape: the world is centred and rides up so the buttons overlay the bottom strip.
      Portrait: the screen splits — world in the upper part, a deep deck of touch controls underneath. */
-  resize(w, h) {
+  resize(w, h, screenScale = this.screenScale) {
     w = Math.round(w); h = Math.round(h);
-    if (w === this.viewW && h === this.viewH && this.canvas.width === w) return;
-    this.viewW = w; this.viewH = h;
-    this.canvas.width = w; this.canvas.height = h;
+    this.screenScale = screenScale;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const q = Math.max(0.3, Math.min(1, screenScale * dpr * this.qMul));
+    const cw = Math.round(w * q), ch = Math.round(h * q);
+    if (w === this.viewW && h === this.viewH && this.canvas.width === cw && this.canvas.height === ch) return;
+    this.viewW = w; this.viewH = h; this.q = q;
+    this.canvas.width = cw; this.canvas.height = ch;
     this.portrait = h > w * 1.1;
     this.panelH = this.portrait ? Math.round(Math.max(420, Math.min(h * 0.30, 1100))) : WORLD_OFFSET;
     this.shift = this.portrait ? 0 : WORLD_OFFSET;
@@ -207,9 +225,10 @@ class Game {
     this.last = this.lastFrame = performance.now();
     requestAnimationFrame(this.loop);
     /* watchdog: some TV browsers throttle requestAnimationFrame — keep the game alive via timer */
+    /* only when frames have truly stalled — a merely slow frame must not trigger extra (costly) redraws */
     this.watchdog = setInterval(() => {
-      if (this.running && performance.now() - this.lastFrame > 34) this.loop(performance.now(), true);
-    }, 16);
+      if (this.running && performance.now() - this.lastFrame > 150) this.loop(performance.now(), true);
+    }, 50);
   }
   stop() { this.running = false; clearInterval(this.watchdog); }
 
@@ -287,6 +306,7 @@ class Game {
     this.lastFrame = now;
     let dt = (now - this.last) / 1000;
     this.last = now;
+    if (!manual) this.governPerf(dt);
     if (dt > 0.1) dt = 0.1;
     if (this.state === 'play' || this.state === 'dead' || this.state === 'complete' || this.state === 'turnover') {
       this.acc += dt;
@@ -295,6 +315,19 @@ class Game {
     }
     this.draw();
     if (!manual) requestAnimationFrame(this.loop);
+  }
+
+  /* If the device keeps missing frames during play, trade eye candy for smoothness, one notch at a time:
+     1) glow blur + background dust off, 2) and 3) lower render resolution. */
+  governPerf(dt) {
+    const p = this.perf;
+    if (this.state !== 'play' || dt <= 0 || dt > 0.25) return;
+    p.ema += (dt * 1000 - p.ema) * 0.05;
+    p.slowFor = p.ema > 24 ? p.slowFor + dt : 0;          // ~40 fps or worse, for a while
+    if (p.slowFor < 1.5 || p.level >= 3) return;
+    p.level++; p.slowFor = 0; p.ema = 16;
+    if (p.level === 1) this.lowFx = true;
+    else { this.qMul *= 0.75; this.resize(this.viewW, this.viewH); }
   }
 
   step(dt) {
@@ -486,8 +519,9 @@ class Game {
   buildBackground() {
     const VW = this.viewW || WORLD_W, VH = this.viewH || WORLD_H;
     const c = document.createElement('canvas');
-    c.width = VW; c.height = VH;
+    c.width = Math.round(VW * this.q); c.height = Math.round(VH * this.q);
     const x = c.getContext('2d');
+    x.scale(this.q, this.q);                        // built at the canvas's real resolution
     const grd = x.createRadialGradient(VW / 2, 300, 100, VW / 2, 500, Math.max(1300, VW * 0.7));
     grd.addColorStop(0, '#111c3d'); grd.addColorStop(1, '#05080f');
     x.fillStyle = grd; x.fillRect(0, 0, VW, VH);
@@ -536,8 +570,9 @@ class Game {
 
   draw() {
     const ctx = this.ctx;
+    ctx.setTransform(this.q, 0, 0, this.q, 0, 0);   // draw in design pixels; the canvas itself is smaller
     ctx.save();
-    ctx.drawImage(this.bg, 0, 0);
+    ctx.drawImage(this.bg, 0, 0, this.viewW, this.viewH);
     this.fxDrawAmbience(ctx);                       // drifting dust, current in the walls, distant storm
     if (!this.level) { ctx.restore(); return; }
 
@@ -636,8 +671,9 @@ class Game {
   drawBlackout(ctx) {
     /* the darkness lives on its own layer so the hole only cuts the darkness, not the world */
     const LX = this.ox, LY = this.oy - this.shift;          // layer origin in world space
-    if (!this.darkLayer) { this.darkLayer = document.createElement('canvas'); this.darkLayer.width = this.viewW; this.darkLayer.height = this.viewH; }
+    if (!this.darkLayer) { this.darkLayer = document.createElement('canvas'); this.darkLayer.width = Math.round(this.viewW * this.q); this.darkLayer.height = Math.round(this.viewH * this.q); }
     const d = this.darkLayer.getContext('2d');
+    d.setTransform(this.q, 0, 0, this.q, 0, 0);
     const p = this.player;
     const cx = p.x + p.w / 2 + LX, cy = p.y + p.h / 2 + LY;
     const r = 250 + Math.sin(this.time * 9) * 10;
@@ -657,7 +693,7 @@ class Game {
       eg.addColorStop(0, 'rgba(0,0,0,0.6)'); eg.addColorStop(1, 'rgba(0,0,0,0)');
       d.fillStyle = eg; d.fillRect(exx - 135, exy - 150, 270, 300);
     }
-    ctx.drawImage(this.darkLayer, -LX, -LY);
+    ctx.drawImage(this.darkLayer, -LX, -LY, this.viewW, this.viewH);
   }
 
   /* bottom strip behind the on-screen buttons: a dark control panel with a hazard stripe */

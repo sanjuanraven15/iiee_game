@@ -308,8 +308,8 @@ Object.assign(Game.prototype, {
     if (!this.motes || !this.motes.length) this.fxBuildAmbience();
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    /* current running through the wall traces */
-    for (const p of this.pulses) {
+    /* current running through the wall traces (skipped in low-FX mode: pure decoration) */
+    for (const p of this.lowFx ? [] : this.pulses) {
       let d = (p.off + t * p.speed) % p.len;
       let i = 0;
       while (i < p.seg.length && d > p.seg[i]) { d -= p.seg[i]; i++; }
@@ -329,7 +329,7 @@ Object.assign(Game.prototype, {
     const ppx = this.player ? this.player.x : WORLD_W / 2;
     const par = -(ppx - WORLD_W / 2) * 0.02;
     ctx.fillStyle = 'rgba(160,210,255,1)';
-    for (const m of this.motes) {
+    for (const m of this.lowFx ? [] : this.motes) {
       const y = ((m.y - t * m.sp) % VH + VH) % VH;
       const x = m.x + par * m.depth + Math.sin(t * 0.7 + m.ph) * 12;
       ctx.globalAlpha = 0.1 + 0.22 * m.depth;
