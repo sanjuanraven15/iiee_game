@@ -1247,15 +1247,22 @@
   }
 
   /* ---------- Interactions ---------- */
-  function svgPoint(e) {
-    const svg = $("stage"),
-      pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  /* Screen ↔ board coordinates, worked out from the board's on-screen box and its viewBox
+     (preserveAspectRatio xMidYMid meet). getScreenCTM() is not used: on iPhones and some Android
+     browsers it ignores the CSS scale on the game stage, so drops landed in the wrong place. */
+  function boardMap(svg = $("stage")) {
+    const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+    const k = Math.min(r.width / vb.width, r.height / vb.height) || 1;  // screen px per board unit
+    return { r, vb, k, ox: r.left + (r.width - vb.width * k) / 2, oy: r.top + (r.height - vb.height * k) / 2 };
   }
+  function svgPoint(e) {
+    const m = boardMap();
+    return { x: m.vb.x + (e.clientX - m.ox) / m.k, y: m.vb.y + (e.clientY - m.oy) / m.k };
+  }
+  /* how close a finger has to be, in board units: never less than ~30 screen pixels */
+  const reach = () => Math.max(48, 30 / boardMap().k);
   function startDrag(e, t) {
-    if (solved) return;
+    if (solved || drag) return;
     e.preventDefault();
     e.stopPropagation();
     drag = {
@@ -1268,7 +1275,7 @@
     if (!drag) return;
     const p = svgPoint(e);
     drag.line.setAttribute("d", cablePath(drag.from, p));
-    const near = nearestTerminal(p);
+    const near = nearestTerminal(p, reach());
     document
       .querySelectorAll(".term")
       .forEach((c) =>
@@ -1278,7 +1285,7 @@
   function endDrag(e) {
     if (!drag) return;
     const p = svgPoint(e);
-    const to = nearestTerminal(p);
+    const to = nearestTerminal(p, reach());
     drag.line.remove();
     const from = drag.from;
     drag = null;
@@ -1310,9 +1317,9 @@
     sfx.plug();
     afterChange(to.id.split(".")[0]);
   }
-  function nearestTerminal(p) {
+  function nearestTerminal(p, radius = 48) {
     let best = null,
-      bd = 48;
+      bd = radius;
     allTerminals().forEach((t) => {
       const d = Math.hypot(t.x - p.x, t.y - p.y);
       if (d < bd) {
@@ -2187,16 +2194,12 @@
     const cv = $("confetti"),
       ctx = cv.getContext("2d");
     const [W, H] = sizeFx(cv, ctx); // drawn in stage units, stored at screen resolution
-    const svg = $("stage"),
-      ctm = svg.getScreenCTM(),
+    const m = boardMap(),
       box = cv.getBoundingClientRect();
     const toCanvas = (x, y) => {
-      const pt = svg.createSVGPoint();
-      pt.x = x;
-      pt.y = y;
-      const s = pt.matrixTransform(ctm);
+      const sx = m.ox + (x - m.vb.x) * m.k, sy = m.oy + (y - m.vb.y) * m.k;
       // screen pixels → canvas pixels (the whole game is scaled to fit the screen)
-      return [((s.x - box.left) * W) / box.width, ((s.y - box.top) * H) / box.height];
+      return [((sx - box.left) * W) / box.width, ((sy - box.top) * H) / box.height];
     };
     const COL = [
       "#ff6a00",
@@ -2668,9 +2671,21 @@
   });
   document.addEventListener("pointerdown", () => bgm.start(), { once: true }); // browsers need a gesture before audio
   const stage = $("stage");
+  stage.addEventListener("pointerdown", (e) => {
+    if (drag || solved || e.button > 0) return;
+    if (e.target.closest && e.target.closest(".switch-part, .cable")) return;   // taps on switches / cables keep their meaning
+    const t = nearestTerminal(svgPoint(e), reach());
+    if (t) startDrag(e, t);
+  });
   window.addEventListener("pointermove", moveDrag); // keep tracking even when the finger leaves the board
   window.addEventListener("pointerup", endDrag);
-  window.addEventListener("pointercancel", endDrag);
+  /* the browser took the touch away (a system gesture): drop the cable in hand, connect nothing */
+  window.addEventListener("pointercancel", () => {
+    if (!drag) return;
+    drag.line.remove();
+    drag = null;
+    document.querySelectorAll(".term").forEach((c) => c.classList.remove("hot"));
+  });
   $("btn-clear").addEventListener("click", () => {
     if (solved) return;
     cables = [];
