@@ -2,9 +2,9 @@
    Bump CACHE_VERSION whenever any file changes (keep it in sync with the ?v= tags in index.html). */
 'use strict';
 
-const CACHE_VERSION = 'v20260925a';
+const CACHE_VERSION = 'v20260925b';
 const CACHE_NAME = 'zip-circuit-' + CACHE_VERSION;
-const V = '?v=20260925a';
+const V = '?v=20260925b';
 
 const PRECACHE = [
   './',

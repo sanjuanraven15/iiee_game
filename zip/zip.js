@@ -1236,9 +1236,7 @@ function pressKey(k) {
   Sfx.key(); $('name-display').textContent = nameValue;
 }
 function submitName() {
-  const clean = sanitizeName(nameValue);
-  if (!clean) { const box = $('name-box'); box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); Sfx.buzz(); return; }
-  startRun(clean);
+  startRun(sanitizeName(nameValue) || 'PLAYER');   // a name is optional — a blank one plays as PLAYER
 }
 screens.name.addEventListener('click', e => { const b = e.target.closest('[data-key]'); if (b) pressKey(b.dataset.key); });
 window.addEventListener('keydown', e => {

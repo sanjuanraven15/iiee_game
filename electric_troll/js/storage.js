@@ -120,7 +120,7 @@ function recordTurn(name, result) {
 
 /* Most recently seen names, for the quick-pick chips on the name screen. */
 function recentNames(n = 8) {
-  return Object.keys(players).sort((a, b) => (players[b].lastPlayed || '').localeCompare(players[a].lastPlayed || '')).slice(0, n);
+  return Object.keys(players).filter(k => k !== 'PLAYER').sort((a, b) => (players[b].lastPlayed || '').localeCompare(players[a].lastPlayed || '')).slice(0, n);
 }
 
 /* Small local settings (sound on/off) */

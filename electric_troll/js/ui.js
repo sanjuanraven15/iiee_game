@@ -259,13 +259,8 @@
     else if (/^[a-zA-Z0-9]$/.test(e.key)) pressKey(e.key.toUpperCase());
   });
   function submitName() {
-    const clean = sanitizeName(nameValue);
-    if (!clean) {
-      const box = $('name-box'); box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
-      Sfx.nope(); return;
-    }
     Sfx.click();
-    startTurn(clean);
+    startTurn(sanitizeName(nameValue) || 'PLAYER');   // a name is optional — a blank one plays as PLAYER
   }
   function showNameEntry() {
     nameValue = '';
