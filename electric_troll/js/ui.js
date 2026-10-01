@@ -195,7 +195,8 @@
     show('summary');
     if (rank === 1 && turn.score > 0) Sfx.record();
   }
-  $('btn-next-player').addEventListener('click', showNameEntry);
+  /* NEXT PLAYER: back to the spin page, where the wheel picks the next player's game (a moment later, so the click is heard) */
+  $('btn-next-player').addEventListener('click', () => setTimeout(() => location.assign('../index.html'), 140));
   $('btn-summary-scores').addEventListener('click', showScores);
   $('btn-summary-menu').addEventListener('click', showMain);
 

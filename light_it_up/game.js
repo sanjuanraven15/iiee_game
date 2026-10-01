@@ -2803,7 +2803,11 @@
   $("btn-name-back").addEventListener("click", showHome);
   $("btn-scoreboard").addEventListener("click", () => showBoard());
   $("btn-result-board").addEventListener("click", () => showBoard(playerName));
-  $("btn-result-home").addEventListener("click", askName);
+  // NEXT PLAYER: back to the spin page, where the wheel picks the next player's game
+  $("btn-result-home").addEventListener("click", () => {
+    sfx.click();
+    setTimeout(() => location.assign("../index.html"), 140);
+  });
   $("btn-board-play").addEventListener("click", askName);
   $("btn-board-back").addEventListener("click", showHome);
   // Clear scoreboard: two taps within 4 s so nobody wipes it by accident

@@ -1294,7 +1294,8 @@ $('confirm-yes').addEventListener('click', () => {
 $('scores-play').addEventListener('click', () => { Sfx.click(); openNameEntry(); });
 $('btn-reset').addEventListener('click', () => { Sfx.click(); resetWire(); });
 $('btn-quit').addEventListener('click', () => { if (!game.active) return; Sfx.click(); endRun('quit'); });
-$('summary-next').addEventListener('click', () => { Sfx.click(); openNameEntry(); });
+/* NEXT PLAYER: back to the spin page, where the wheel picks the next player's game */
+$('summary-next').addEventListener('click', () => { Sfx.click(); setTimeout(() => location.assign('../index.html'), 140); });
 $('summary-scores').addEventListener('click', () => { Sfx.click(); showScores(); });
 $('summary-menu').addEventListener('click', () => { Sfx.click(); showMain(); });
 window.addEventListener('pointerdown', () => Sfx.init(), { once: true });
