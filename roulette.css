@@ -279,3 +279,7 @@ body.spin-page .hub-top, body.spin-page .spin { position: relative; z-index: 1; 
 .wheel-wrap { transform: translate(-50%, calc(-50% - var(--size) * .025)); }
 /* wide screens: the hint line under the buttons makes way for the wheel */
 @media (min-aspect-ratio: 6/5) { .spin .hub-foot { display: none; } .spin { grid-template-areas: "title title" "sub sub" "wheel actions"; grid-template-rows: auto auto minmax(0, 1fr); } }
+
+/* the buttons never grow wider than their column (this rule comes last so nothing above can undo it) */
+.spin-actions { max-width: 100%; }
+@media (min-aspect-ratio: 6/5) { .spin-actions { width: min(100%, 460px); justify-self: center; } }
