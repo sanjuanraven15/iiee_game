@@ -7,13 +7,16 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Fuji-Haya Games">
 <meta name="theme-color" content="#070b18">
-<title>⚡ Fuji-Haya Game Zone</title>
+<title>🎡 Fuji-Haya Game Spin</title>
 <link rel="manifest" href="hub-manifest.json">
 <link rel="icon" href="electric_troll/images/logo.png">
 <link rel="apple-touch-icon" href="electric_troll/images/logo.png">
-<link rel="stylesheet" href="hub.css?v=20260924i">
+<script src="sound-settings.js?v=20261001a"></script>
+<script src="fh-music.js?v=20261001b"></script>
+<link rel="stylesheet" href="hub.css?v=20261001e">
+<link rel="stylesheet" href="roulette.css?v=20261001l">
 </head>
-<body>
+<body class="spin-page">
 
 <header class="hub-top">
   <div class="brand">
@@ -23,221 +26,313 @@
       <span>ELECTRIC CORPORATION OF THE PHILIPPINES</span>
     </div>
   </div>
+  <button class="sound-btn" id="sound-btn" aria-label="Sound on / off">🔊</button>
 </header>
 
-<main class="hub">
-  <h1 class="hub-title">⚡ GAME ZONE ⚡</h1>
-  <p class="hub-sub">PICK A GAME</p>
+<main class="spin">
+  <h1 class="hub-title"><span class="deco">🎡</span> SPIN TO PLAY! <span class="deco">🎡</span></h1>
+  <p class="hub-sub">LET THE WHEEL PICK YOUR GAME</p>
 
-  <div class="tiles">
-
-    <!-- ===================== ELECTRICAL TROLL ===================== -->
-    <a class="tile troll" href="electric_troll/index.html">
-      <div class="screen">
-        <svg viewBox="0 0 400 240" aria-hidden="true">
-          <defs>
-            <linearGradient id="trollSky" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#101d4e"/><stop offset="1" stop-color="#070d24"/>
-            </linearGradient>
-            <linearGradient id="trollGround" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#22366a"/><stop offset="1" stop-color="#101a38"/>
-            </linearGradient>
-          </defs>
-          <rect width="400" height="240" fill="url(#trollSky)"/>
-          <g stroke="#2a63c9" stroke-opacity=".28" stroke-width="1">
-            <path d="M0 40h400M0 80h400M0 120h400M0 160h400"/>
-            <path d="M60 0v190M140 0v190M220 0v190M300 0v190M370 0v190"/>
-          </g>
-          <!-- pylons -->
-          <g stroke="#3f7fd6" stroke-opacity=".5" stroke-width="2" fill="none">
-            <path d="M80 190 L104 70 L128 190 M86 160h36 M92 128h24"/>
-            <path d="M262 190 L286 70 L310 190 M268 160h36 M274 128h24"/>
-          </g>
-          <!-- exit door -->
-          <g class="troll-exit">
-            <rect x="338" y="132" width="40" height="58" rx="5" fill="#0d2b1a" stroke="#4dff88" stroke-width="3"/>
-            <rect x="336" y="120" width="44" height="14" rx="4" fill="#07170f" stroke="#4dff88" stroke-width="2"/>
-            <text x="358" y="131" text-anchor="middle" font-size="9" fill="#4dff88" font-family="Bangers, Impact, sans-serif">EXIT</text>
-          </g>
-          <!-- ground -->
-          <rect x="0" y="190" width="400" height="50" fill="url(#trollGround)"/>
-          <rect x="0" y="188" width="400" height="3" fill="#4b8ae0" opacity=".6"/>
-          <!-- spikes -->
-          <path d="M150 190 l10 -18 l10 18 z M170 190 l10 -18 l10 18 z" fill="#ff3d5a" opacity=".9"/>
-          <!-- sign -->
-          <g>
-            <rect x="52" y="152" width="58" height="20" rx="3" fill="#caa15c" stroke="#7d5f2c" stroke-width="2"/>
-            <rect x="78" y="172" width="5" height="18" fill="#7d5f2c"/>
-            <text x="81" y="166" text-anchor="middle" font-size="8" fill="#3a2a10" font-family="Bangers, Impact, sans-serif">TRUST ME</text>
-          </g>
-          <!-- falling bulb -->
-          <g class="troll-bulb">
-            <line x1="250" y1="0" x2="250" y2="52" stroke="#8b9bc4" stroke-width="2"/>
-            <circle cx="250" cy="62" r="11" fill="#ffd60a" stroke="#b38600" stroke-width="2"/>
-            <rect x="245" y="72" width="10" height="7" rx="2" fill="#9aa3ba"/>
-          </g>
-          <g class="troll-spark">
-            <path d="M244 184l7-12 1 8 7-10-3 12 8-4-12 12z" fill="#ffd60a"/>
-          </g>
-          <!-- Busby -->
-          <g class="troll-busby">
-            <g transform="translate(-14,-40) scale(.30)">
-              <rect x="66" y="196" width="28" height="30" rx="8" fill="#1d2a6b"/>
-              <rect x="106" y="196" width="28" height="30" rx="8" fill="#1d2a6b"/>
-              <rect x="54" y="140" width="92" height="70" rx="24" fill="#6aa9e9" stroke="#3f7fc4" stroke-width="3"/>
-              <path d="M62 146h22v62H62z M116 146h22v62h-22z" fill="#c6ff3a" stroke="#8fc700" stroke-width="2.5"/>
-              <circle cx="100" cy="96" r="58" fill="#ffe3c9" stroke="#e2b896" stroke-width="3"/>
-              <path d="M40 80a60 54 0 0 1 120 0z" fill="#fff" stroke="#c5cad3" stroke-width="4"/>
-              <rect x="28" y="74" width="144" height="16" rx="8" fill="#fff" stroke="#c5cad3" stroke-width="3"/>
-              <rect x="58" y="96" width="36" height="24" rx="8" fill="rgba(200,230,255,.35)" stroke="#1a1a1a" stroke-width="5"/>
-              <rect x="106" y="96" width="36" height="24" rx="8" fill="rgba(200,230,255,.35)" stroke="#1a1a1a" stroke-width="5"/>
-              <path d="M94 106h12" stroke="#1a1a1a" stroke-width="5"/>
-              <circle cx="76" cy="108" r="8" fill="#3b2a1a"/><circle cx="124" cy="108" r="8" fill="#3b2a1a"/>
-              <path d="M88 132q12 12 24 0" stroke="#2E2E2E" stroke-width="4" fill="none" stroke-linecap="round"/>
-            </g>
-          </g>
-        </svg>
-        <span class="screen-badge">RAGE BAIT</span>
-      </div>
-      <div class="tile-body">
-        <h2>⚡ ELECTRICAL TROLL</h2>
-        <p>A platformer built to trick you. Traps move, signs lie, and the exit runs away.</p>
-        <div class="chips"><span>10 LIVES</span><span>10 LEVELS</span><span>NEVER THE SAME</span></div>
-        <span class="play">PLAY ➜</span>
-      </div>
-    </a>
-
-    <!-- ===================== ZIP ===================== -->
-    <a class="tile zip" href="zip/index.html">
-      <div class="screen">
-        <svg viewBox="0 0 400 240" aria-hidden="true">
-          <defs>
-            <linearGradient id="zipBg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#0d1836"/><stop offset="1" stop-color="#060b1d"/>
-            </linearGradient>
-          </defs>
-          <rect width="400" height="240" fill="url(#zipBg)"/>
-          <!-- board -->
-          <g transform="translate(36,26)">
-            <rect x="-10" y="-10" width="220" height="200" rx="16" fill="rgba(6,12,32,.6)" stroke="#24365f" stroke-width="3"/>
-            <g fill="rgba(12,22,52,.9)" stroke="#24365f" stroke-width="2">
-              <rect x="0" y="0" width="42" height="42" rx="8"/><rect x="48" y="0" width="42" height="42" rx="8"/><rect x="96" y="0" width="42" height="42" rx="8"/><rect x="144" y="0" width="42" height="42" rx="8"/>
-              <rect x="0" y="46" width="42" height="42" rx="8"/><rect x="48" y="46" width="42" height="42" rx="8"/><rect x="96" y="46" width="42" height="42" rx="8"/><rect x="144" y="46" width="42" height="42" rx="8"/>
-              <rect x="0" y="92" width="42" height="42" rx="8"/><rect x="48" y="92" width="42" height="42" rx="8"/><rect x="96" y="92" width="42" height="42" rx="8"/><rect x="144" y="92" width="42" height="42" rx="8"/>
-              <rect x="0" y="138" width="42" height="42" rx="8"/><rect x="48" y="138" width="42" height="42" rx="8"/><rect x="96" y="138" width="42" height="42" rx="8"/><rect x="144" y="138" width="42" height="42" rx="8"/>
-            </g>
-            <!-- the wire drawing itself -->
-            <polyline class="zip-wire-glow" points="21,21 21,67 69,67 69,21 117,21 117,67 117,113 69,113 21,113 21,159 69,159 117,159 165,159 165,113 165,67 165,21"
-              fill="none" stroke="#29e0ff" stroke-opacity=".4" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
-            <polyline class="zip-wire" points="21,21 21,67 69,67 69,21 117,21 117,67 117,113 69,113 21,113 21,159 69,159 117,159 165,159 165,113 165,67 165,21"
-              fill="none" stroke="#9ff5ff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- terminals -->
-            <g font-family="Bangers, Impact, sans-serif" font-size="17" text-anchor="middle">
-              <circle cx="21" cy="21" r="13" fill="#ffd60a" stroke="#b38600" stroke-width="3"/><text x="21" y="27" fill="#0b1020">1</text>
-              <circle cx="117" cy="67" r="13" fill="#141d38" stroke="#4b64a3" stroke-width="3"/><text x="117" y="73" fill="#f4f7ff">2</text>
-              <circle cx="21" cy="159" r="13" fill="#141d38" stroke="#4b64a3" stroke-width="3"/><text x="21" y="165" fill="#f4f7ff">3</text>
-              <circle cx="165" cy="21" r="13" fill="#141d38" stroke="#4b64a3" stroke-width="3"/><text x="165" y="27" fill="#f4f7ff">4</text>
-            </g>
-          </g>
-          <!-- the bulb that lights when the circuit closes -->
-          <g class="zip-lamp" transform="translate(320,96)">
-            <circle class="zip-halo" cx="0" cy="0" r="46" fill="#ffd166" opacity="0"/>
-            <line x1="0" y1="-74" x2="0" y2="-40" stroke="#3a4a78" stroke-width="4"/>
-            <circle class="zip-glass" cx="0" cy="0" r="30" fill="rgba(190,225,255,.18)" stroke="rgba(210,235,255,.6)" stroke-width="3"/>
-            <path class="zip-filament" d="M-9 8 l4 -12 l5 12 l5 -12 l4 12" fill="none" stroke="#6b5a3a" stroke-width="4" stroke-linecap="round"/>
-            <rect x="-11" y="28" width="22" height="20" rx="4" fill="#9aa3ba"/>
-            <rect x="-11" y="34" width="22" height="3" fill="#63708f"/><rect x="-11" y="40" width="22" height="3" fill="#63708f"/>
-          </g>
-        </svg>
-        <span class="screen-badge">PUZZLE</span>
-      </div>
-      <div class="tile-body">
-        <h2>🔌 ZIP</h2>
-        <p>One wire from 1 to the last terminal — every number in order, every cell filled.</p>
-        <div class="chips"><span>2 MINUTES</span><span>3 FUSES</span><span>ENDLESS LEVELS</span></div>
-        <span class="play">PLAY ➜</span>
-      </div>
-    </a>
-
-    <!-- ===================== LIGHT IT UP ===================== -->
-    <a class="tile light" href="light_it_up/index.html">
-      <div class="screen">
-        <svg viewBox="0 0 400 240" aria-hidden="true">
-          <defs>
-            <linearGradient id="litBg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#132152"/><stop offset="1" stop-color="#080f28"/>
-            </linearGradient>
-          </defs>
-          <rect width="400" height="240" fill="url(#litBg)"/>
-          <g stroke="#3f7fd6" stroke-opacity=".22" stroke-width="1">
-            <path d="M0 60h400M0 120h400M0 180h400M100 0v240M200 0v240M300 0v240"/>
-          </g>
-          <!-- battery -->
-          <g transform="translate(26,86)">
-            <rect x="0" y="0" width="54" height="68" rx="8" fill="#16224b" stroke="#4b64a3" stroke-width="3"/>
-            <rect x="10" y="-9" width="14" height="10" rx="2" fill="#ffd60a"/>
-            <rect x="32" y="-9" width="14" height="10" rx="2" fill="#8b9bc4"/>
-            <text x="17" y="30" font-size="20" fill="#ffd60a" font-family="Bangers, Impact, sans-serif">+</text>
-            <text x="34" y="30" font-size="20" fill="#8b9bc4" font-family="Bangers, Impact, sans-serif">−</text>
-            <text x="27" y="56" font-size="11" fill="#8b9bc4" text-anchor="middle" font-family="Bangers, Impact, sans-serif">12V</text>
-          </g>
-          <!-- posts -->
-          <g fill="#ffd60a">
-            <circle cx="104" cy="92" r="7"/><circle cx="104" cy="150" r="7"/>
-            <circle cx="196" cy="92" r="7"/><circle cx="196" cy="150" r="7"/>
-            <circle cx="288" cy="120" r="7"/>
-          </g>
-          <!-- cable being dragged into place -->
-          <path class="lit-cable" d="M104 92 H196" fill="none" stroke="#ffd60a" stroke-width="7" stroke-linecap="round"/>
-          <path class="lit-cable lit-cable2" d="M196 150 H288 V127" fill="none" stroke="#ffd60a" stroke-width="7" stroke-linecap="round"/>
-          <circle class="lit-finger" cx="104" cy="92" r="9" fill="none" stroke="#fff" stroke-width="3" opacity="0"/>
-          <!-- switch -->
-          <g transform="translate(150,150)">
-            <rect x="-22" y="-16" width="44" height="32" rx="8" fill="#16224b" stroke="#4b64a3" stroke-width="3"/>
-            <circle cx="-14" cy="0" r="4" fill="#8b9bc4"/><circle cx="14" cy="0" r="4" fill="#8b9bc4"/>
-            <line class="lit-switch" x1="-14" y1="0" x2="12" y2="-12" stroke="#ffd60a" stroke-width="5" stroke-linecap="round"/>
-          </g>
-          <!-- bulb -->
-          <g class="lit-lamp" transform="translate(288,120)">
-            <circle class="lit-halo" cx="0" cy="-30" r="44" fill="#ffd166" opacity="0"/>
-            <circle class="lit-glass" cx="0" cy="-30" r="26" fill="rgba(255,240,190,.12)" stroke="#ffe9a8" stroke-width="3"/>
-            <path class="lit-filament" d="M-8 -22 l4 -12 l4 12 l4 -12" fill="none" stroke="#6b5a3a" stroke-width="3.5" stroke-linecap="round"/>
-            <rect x="-9" y="-6" width="18" height="16" rx="3" fill="#9aa3ba"/>
-            <g class="lit-rays" stroke="#ffe9a8" stroke-width="4" stroke-linecap="round" opacity="0">
-              <path d="M0 -74v-12M34 -64l9-8M-34 -64l-9-8M46 -30h12M-46 -30h-12"/>
-            </g>
-          </g>
-        </svg>
-        <span class="screen-badge">WIRING</span>
-      </div>
-      <div class="tile-body">
-        <h2>💡 LIGHT IT UP!</h2>
-        <p>Drag cables between the dots, flip the switches, light every bulb — without shorting it.</p>
-        <div class="chips"><span>2 MINUTES</span><span>DRAG &amp; TAP</span><span>NO SHORT CIRCUITS</span></div>
-        <span class="play">PLAY ➜</span>
-      </div>
-    </a>
-
+  <div class="wheel-area" id="wheel-area">
+  <div class="wheel-wrap" id="wheel-wrap">
+    <div class="rays" aria-hidden="true"></div>
+    <div class="floor-shadow" aria-hidden="true"></div>
+    <div class="stand" aria-hidden="true"></div>
+    <div class="wheel-3d" id="wheel-3d">
+    <div class="wheel-depth" aria-hidden="true"><i style="--k:1"></i><i style="--k:2"></i><i style="--k:3"></i><i style="--k:4"></i><i style="--k:5"></i><i style="--k:6"></i><i style="--k:7"></i><i style="--k:8"></i><i style="--k:9"></i><i style="--k:10"></i></div>
+    <svg class="wheel" id="wheel" viewBox="-210 -210 420 420" role="img" aria-label="Game wheel: Electrical Troll, Zip, Light It Up">
+      <defs>
+        <radialGradient id="gTroll" cx="0" cy="0" r="200" gradientUnits="userSpaceOnUse">
+          <stop offset=".25" stop-color="#ff5a7a"/><stop offset="1" stop-color="#b3123a"/>
+        </radialGradient>
+        <radialGradient id="gZip" cx="0" cy="0" r="200" gradientUnits="userSpaceOnUse">
+          <stop offset=".25" stop-color="#4fe6ff"/><stop offset="1" stop-color="#0a78b8"/>
+        </radialGradient>
+        <radialGradient id="gLit" cx="0" cy="0" r="200" gradientUnits="userSpaceOnUse">
+          <stop offset=".25" stop-color="#ffe45e"/><stop offset="1" stop-color="#e09a00"/>
+        </radialGradient>
+      </defs>
+      <g id="wheel-spin">
+        <g id="segments"></g>
+        <g id="flashes"></g>
+        <g id="pegs"></g>
+      </g>
+      <!-- fixed hub in the middle -->
+      <circle r="58" fill="#0b1430" stroke="#ffd60a" stroke-width="6"/>
+      <clipPath id="logoRound"><rect x="-38" y="-38" width="76" height="76" rx="16"/></clipPath>
+      <image href="electric_troll/images/logo.png" x="-38" y="-38" width="76" height="76" preserveAspectRatio="xMidYMid slice" clip-path="url(#logoRound)"/>
+    </svg>
+    <div class="gloss" aria-hidden="true"></div>
+    <div class="rim-lights" id="rim-lights" aria-hidden="true"></div>
+    </div>
+    <div class="pointer" id="pointer" aria-hidden="true"><span></span></div>
+  </div>
   </div>
 
-  <p class="hub-foot">TOUCH A TILE TO PLAY · ARROW KEYS + ENTER ALSO WORK</p>
+  <div class="spin-actions">
+    <button class="spin-btn" id="spin-btn">⚡ SPIN!</button>
+    <a class="zone-btn" href="game-zone.html">🎮 GAME ZONE</a>
+  </div>
+  <p class="hub-foot">TAP SPIN · OR PRESS ENTER / SPACE · GAME ZONE LETS YOU PICK ONE YOURSELF</p>
 </main>
 
+<!-- sparks, confetti (drawn only while something is flying) -->
+<canvas class="fx" id="fx" aria-hidden="true"></canvas>
+<div class="win-flash" id="win-flash" aria-hidden="true"></div>
+<div class="bg-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+<!-- the winner -->
+<div class="winner hidden" id="winner" role="status" aria-live="polite">
+  <div class="winner-card">
+    <div class="winner-kicker">THE WHEEL PICKED</div>
+    <div class="winner-name" id="winner-name">ZIP</div>
+    <div class="winner-go">STARTING<span class="dots"><i>.</i><i>.</i><i>.</i></span></div>
+  </div>
+</div>
+
 <script>
-/* arrow keys / TV remote: move between tiles, Enter opens the focused one */
 (function () {
-  const tiles = [...document.querySelectorAll('.tile')];
-  tiles.forEach((t, i) => { t.tabIndex = 0; t.style.setProperty('--i', i); });
-  document.addEventListener('keydown', e => {
-    const k = e.key;
-    if (!/^Arrow(Left|Right|Up|Down)$/.test(k)) return;
-    e.preventDefault();
-    const at = tiles.indexOf(document.activeElement);
-    const step = (k === 'ArrowRight' || k === 'ArrowDown') ? 1 : -1;
-    const next = at < 0 ? 0 : (at + step + tiles.length) % tiles.length;
-    tiles[next].focus();
+  'use strict';
+  /* the three games on the wheel (clockwise from the top) */
+  const GAMES = [
+    { name: 'ELECTRICAL TROLL', short: ['ELECTRICAL', 'TROLL'], icon: '⚡', href: 'electric_troll/index.html', fill: 'url(#gTroll)', ink: '#fff' },
+    { name: 'ZIP',              short: ['ZIP'],                  icon: '🔌', href: 'zip/index.html',            fill: 'url(#gZip)',   ink: '#04223a' },
+    { name: 'LIGHT IT UP!',     short: ['LIGHT', 'IT UP!'],      icon: '💡', href: 'light_it_up/index.html',    fill: 'url(#gLit)',   ink: '#2b1d00' },
+  ];
+  const NS = 'http://www.w3.org/2000/svg', R = 196, SEG = 360 / GAMES.length;
+  const $ = id => document.getElementById(id);
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+  const pt = (deg, r) => { const a = deg * Math.PI / 180; return [r * Math.sin(a), -r * Math.cos(a)]; };   // 0° = top, clockwise
+
+  /* ---------- draw the wheel ---------- */
+  const segs = $('segments');
+  GAMES.forEach((g, i) => {
+    const a0 = i * SEG, a1 = a0 + SEG, [x0, y0] = pt(a0, R), [x1, y1] = pt(a1, R);
+    el('path', { d: `M0 0 L${x0} ${y0} A${R} ${R} 0 0 1 ${x1} ${y1} Z`, fill: g.fill, stroke: '#0b1430', 'stroke-width': 6 }, segs);
+    el('path', { class: 'seg-flash', 'data-i': i, d: `M0 0 L${x0} ${y0} A${R} ${R} 0 0 1 ${x1} ${y1} Z`, fill: '#fff' }, $('flashes'));
+    const mid = a0 + SEG / 2;
+    const flip = mid > 90 && mid < 270 ? ' rotate(180 0 0)' : '';      // keep the bottom label upright
+    const label = el('g', { transform: `rotate(${mid}) translate(0 -128)${flip}` }, segs);
+    el('text', { class: 'seg-icon', y: -22, 'text-anchor': 'middle' }, label).textContent = g.icon;
+    g.short.forEach((line, k) => {
+      const t = el('text', { class: 'seg-name', y: 14 + k * 30, 'text-anchor': 'middle', fill: g.ink }, label);
+      t.textContent = line;
+    });
   });
-  /* offline: ONE worker for the whole site (sw.js at the site root) saves the hub and every game,
+  const pegs = $('pegs');
+  for (let k = 0; k < 12; k++) { const [x, y] = pt(k * 30, R - 6); el('circle', { cx: x, cy: y, r: 6, fill: '#fff', stroke: '#0b1430', 'stroke-width': 2 }, pegs); }
+  el('circle', { r: R, fill: 'none', stroke: '#ffd60a', 'stroke-width': 8 }, $('wheel-spin'));
+
+  /* chasing bulbs round the rim */
+  const rim = $('rim-lights');
+  for (let k = 0; k < 24; k++) { const b = document.createElement('i'); b.style.setProperty('--a', (k * 15) + 'deg'); b.style.setProperty('--k', k % 2); rim.appendChild(b); }
+
+  /* ---------- sound effects, all synthesised (no files — works offline) ----------
+     whoosh on spin · a rumble that follows the wheel's speed · a ratchet click per peg (higher when fast)
+     · on the win: a bell, a fanfare, sparkles and applause.  🔊 / 🔇 in the header, remembered per device. */
+  let ac = null, master = null, noiseBuf = null, rumble = null;
+  const muted = false;                          // loudness is the site-wide knob's job (🔊 in the corner)
+  function audio() {
+    try {
+      if (!ac) {
+        ac = new (window.AudioContext || window.webkitAudioContext)();
+        master = ac.createGain(); master.gain.value = muted ? 0 : 0.9; master.connect(ac.destination);
+        noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+        const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      }
+      if (ac.state === 'suspended') ac.resume();
+    } catch (e) { ac = null; }
+    return ac;
+  }
+  function tone(freq, dur, { type = 'sine', vol = 0.06, delay = 0, slideTo = 0 } = {}) {
+    const c = audio(); if (!c) return;
+    const t = c.currentTime + delay, o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(master); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function noise(dur, { vol = 0.1, delay = 0, type = 'bandpass', freq = 1500, q = 1, freqTo = 0, attack = 0.005 } = {}) {
+    const c = audio(); if (!c) return;
+    const t = c.currentTime + delay, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    s.buffer = noiseBuf; s.loop = true;
+    f.type = type; f.frequency.setValueAtTime(freq, t); f.Q.value = q;
+    if (freqTo) f.frequency.exponentialRampToValueAtTime(freqTo, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f).connect(g).connect(master); s.start(t, Math.random()); s.stop(t + dur + 0.05);
+  }
+  const sfx = {
+    press()  { tone(660, 0.06, { type: 'square', vol: 0.05 }); tone(990, 0.05, { type: 'square', vol: 0.04, delay: 0.04 }); },
+    whoosh() { noise(0.7, { vol: 0.22, freq: 350, freqTo: 3200, q: 0.8, attack: 0.12 }); tone(180, 0.6, { type: 'sawtooth', vol: 0.035, slideTo: 720 }); },
+    tick(speed) {                                    // the pointer clacking over a peg
+      const s = Math.min(1, speed);
+      noise(0.025, { vol: 0.14, type: 'highpass', freq: 2500 });
+      tone(900 + s * 900, 0.035, { type: 'square', vol: 0.035 });
+    },
+    rumbleStart() {
+      const c = audio(); if (!c || rumble) return;
+      const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+      s.buffer = noiseBuf; s.loop = true; f.type = 'lowpass'; f.frequency.value = 260; g.gain.value = 0.0001;
+      s.connect(f).connect(g).connect(master); s.start();
+      rumble = { s, f, g };
+    },
+    rumbleSpeed(speed) {                              // louder and brighter while the wheel flies
+      if (!rumble || !ac) return;
+      const v = Math.min(1, speed / 1.4), t = ac.currentTime;
+      rumble.g.gain.setTargetAtTime(0.0001 + v * 0.16, t, 0.05);
+      rumble.f.frequency.setTargetAtTime(160 + v * 520, t, 0.05);
+    },
+    rumbleStop() {
+      if (!rumble || !ac) return;
+      const r = rumble; rumble = null;
+      r.g.gain.setTargetAtTime(0.0001, ac.currentTime, 0.08); setTimeout(() => { try { r.s.stop(); } catch (e) {} }, 500);
+    },
+    win() {
+      // bell
+      tone(1318, 1.4, { vol: 0.12 }); tone(2637, 1.0, { vol: 0.05 }); tone(1975, 1.2, { vol: 0.04, delay: 0.01 });
+      // fanfare
+      [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.26, { type: 'triangle', vol: 0.09, delay: 0.18 + i * 0.11 }));
+      tone(1047, 0.7, { type: 'triangle', vol: 0.08, delay: 0.62 }); tone(1319, 0.7, { type: 'triangle', vol: 0.06, delay: 0.62 });
+      // sparkles
+      for (let i = 0; i < 10; i++) tone(2000 + Math.random() * 2400, 0.12, { vol: 0.025, delay: 0.3 + i * 0.07 });
+      // applause: many tiny claps
+      for (let i = 0; i < 90; i++) noise(0.02 + Math.random() * 0.02, { vol: 0.05 + Math.random() * 0.08, delay: 0.25 + Math.random() * 1.5, freq: 1200 + Math.random() * 1800, q: 1.4 });
+    },
+    banner() { noise(0.35, { vol: 0.12, freq: 2400, freqTo: 600, q: 0.7, attack: 0.02 }); },
+  };
+  /* volume: the site-wide knob (sound-settings.js) — the same one every game uses */
+  if (window.FHSound) FHSound.attach($('sound-btn'));
+  /* background music like the games' (starts on the first tap), softer while the wheel spins */
+  const music = window.FHMusic || { autoplay() {}, play() {}, duck() {}, click() {} };
+  music.autoplay('spin');
+  /* GAME ZONE: a click, then leave (a moment later, so the click is heard) */
+  document.querySelector('.zone-btn').addEventListener('click', e => {
+    if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+    e.preventDefault(); music.click(); const to = e.currentTarget.href; setTimeout(() => location.assign(to), 140);
+  });
+
+  /* ---------- fit: the wheel fills the free box between the title and the buttons ---------- */
+  const area = $('wheel-area'), wrap = $('wheel-wrap');
+  function fitWheel() {
+    const r = area.getBoundingClientRect();
+    // leave room for the rim bulbs (outside the wheel) and the pointer (above it)
+    const size = Math.max(140, Math.floor(Math.min(r.width * 0.94, r.height * 0.88)));   // the stand + floor sit under it
+    wrap.style.setProperty('--size', size + 'px');
+  }
+  fitWheel();
+  if (window.ResizeObserver) new ResizeObserver(fitWheel).observe(area);
+  window.addEventListener('resize', fitWheel);
+  window.addEventListener('orientationchange', () => setTimeout(fitWheel, 150));
+
+  /* ---------- effects: sparks and confetti on one full-screen canvas, idle when nothing flies ---------- */
+  const fx = $('fx'), fctx = fx.getContext('2d'), parts = [];
+  let fxRun = false;
+  function fxSize() { const d = Math.min(window.devicePixelRatio || 1, 2); fx.width = innerWidth * d; fx.height = innerHeight * d; fctx.setTransform(d, 0, 0, d, 0, 0); }
+  fxSize(); window.addEventListener('resize', fxSize);
+  function fxLoop() {
+    fctx.clearRect(0, 0, innerWidth, innerHeight);
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.t += 1 / 60; p.vy += p.g; p.vx *= p.drag; p.vy *= p.drag; p.x += p.vx; p.y += p.vy; p.r += p.spin;
+      const k = 1 - p.t / p.life;
+      if (k <= 0) { parts.splice(i, 1); continue; }
+      fctx.globalAlpha = Math.min(1, k * 1.6);
+      fctx.fillStyle = p.c;
+      if (p.kind === 'spark') { fctx.beginPath(); fctx.arc(p.x, p.y, p.s * k + .4, 0, 6.283); fctx.fill(); }
+      else { fctx.save(); fctx.translate(p.x, p.y); fctx.rotate(p.r); fctx.fillRect(-p.s, -p.s * .45, p.s * 2, p.s * .9); fctx.restore(); }
+    }
+    fctx.globalAlpha = 1;
+    if (parts.length) requestAnimationFrame(fxLoop); else { fxRun = false; fctx.clearRect(0, 0, innerWidth, innerHeight); }
+  }
+  function fxGo() { if (!fxRun) { fxRun = true; requestAnimationFrame(fxLoop); } }
+  function sparks(x, y, n) {
+    for (let i = 0; i < n && parts.length < 600; i++) {
+      const a = -Math.PI / 2 + (Math.random() - .5) * 2.4, v = 2 + Math.random() * 4;
+      parts.push({ kind: 'spark', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, g: .18, drag: .97, t: 0, life: .35 + Math.random() * .35, s: 1.5 + Math.random() * 2, r: 0, spin: 0, c: Math.random() < .5 ? '#fff3b0' : '#ffd60a' });
+    }
+    fxGo();
+  }
+  const CONF = ['#ffd60a', '#29e0ff', '#ff2fa0', '#4dff88', '#ffffff', '#ff5a7a'];
+  function confetti(x, y, n) {
+    for (let i = 0; i < n && parts.length < 600; i++) {
+      const a = Math.random() * 6.283, v = 4 + Math.random() * 9;
+      parts.push({ kind: 'conf', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 4, g: .22, drag: .985, t: 0, life: 1.6 + Math.random() * 1.2, s: 4 + Math.random() * 5, r: Math.random() * 6, spin: (Math.random() - .5) * .4, c: CONF[i % CONF.length] });
+    }
+    fxGo();
+  }
+  const pointer = $('pointer'), svgWheel = $('wheel');
+  function pointerTip() { const r = pointer.getBoundingClientRect(); return [r.left + r.width / 2, r.bottom]; }
+  function flick() {                                             // the pointer kicks back as a peg passes it
+    pointer.classList.remove('flick'); void pointer.offsetWidth; pointer.classList.add('flick');
+  }
+
+  /* ---------- spin ---------- */
+  const wheel = $('wheel-spin'), btn = $('spin-btn');
+  let angle = 0, spinning = false;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ease = t => 1 - Math.pow(1 - t, 4);                     // fast start, long gentle stop
+  function spin() {
+    if (spinning) return;
+    spinning = true; audio(); sfx.press(); sfx.whoosh(); sfx.rumbleStart();
+    music.play('spin'); music.duck(0.35);                       // the wheel takes the stage
+    document.body.classList.add('is-spinning');
+    btn.disabled = true;
+    const pick = Math.floor(Math.random() * GAMES.length);
+    // land somewhere inside the picked slice (not on a border), after several full turns
+    const inside = SEG * (0.2 + Math.random() * 0.6);
+    const sliceStart = pick * SEG;
+    const targetMod = (360 - (sliceStart + inside)) % 360;      // that point of the wheel ends under the top pointer
+    const turns = reduced ? 1 : 5 + Math.floor(Math.random() * 2);
+    const start = angle, end = start + turns * 360 + ((targetMod - (start % 360)) + 360) % 360;
+    const dur = reduced ? 1200 : 5200, t0 = performance.now();
+    let lastPeg = Math.floor(start / 30), lastAngle = start, lastNow = t0;
+    document.querySelectorAll('.seg-flash').forEach(f => f.classList.remove('win'));
+    document.body.classList.remove('won');
+    (function frame(now) {
+      const t = Math.min(1, (now - t0) / dur);
+      angle = start + (end - start) * ease(t);
+      wheel.setAttribute('transform', `rotate(${angle})`);
+      // motion blur while it is really flying (degrees per millisecond → a pixel or two of blur)
+      const speed = Math.abs(angle - lastAngle) / Math.max(1, now - lastNow);
+      lastAngle = angle; lastNow = now;
+      sfx.rumbleSpeed(speed);
+      if (!reduced) svgWheel.style.filter = speed > .35 ? `blur(${Math.min(1.8, (speed - .35) * 1.6).toFixed(2)}px)` : '';
+      const peg = Math.floor(angle / 30);
+      if (peg !== lastPeg) {
+        lastPeg = peg; sfx.tick(speed); flick();
+        if (!reduced) { const [x, y] = pointerTip(); sparks(x, y, speed > 1 ? 3 : 6); }
+      }
+      if (t < 1) return requestAnimationFrame(frame);
+      svgWheel.style.filter = '';
+      done(GAMES[pick], pick);
+    })(t0);
+  }
+  function done(g, pick) {
+    document.body.classList.remove('is-spinning');
+    sfx.rumbleStop(); sfx.win(); music.duck(0.15);             // let the fanfare shine
+    setTimeout(() => sfx.banner(), 120);
+    const f = document.querySelector(`.seg-flash[data-i="${pick}"]`); if (f) f.classList.add('win');
+    document.body.classList.add('won');
+    if (!reduced) {
+      const r = $('wheel-3d').getBoundingClientRect();
+      confetti(r.left + r.width / 2, r.top + r.height / 2, 180);
+      const [x, y] = pointerTip(); sparks(x, y, 40);
+    }
+    $('winner-name').textContent = g.icon + ' ' + g.name;
+    $('winner').classList.remove('hidden');
+    setTimeout(() => location.assign(g.href), 1800);            // straight into the game
+  }
+  btn.addEventListener('click', spin);
+  document.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.tagName !== 'A') { e.preventDefault(); spin(); }
+  });
+  /* back from a game (browser Back): the page may come from the back/forward cache — make it spinnable again */
+  window.addEventListener('pageshow', e => {
+    if (!e.persisted) return;
+    spinning = false; btn.disabled = false; $('winner').classList.add('hidden'); document.body.classList.remove('won', 'is-spinning'); music.duck(1);
+  });
+
+  /* offline: ONE worker for the whole site (sw.js at the site root) saves this page and every game,
      so all of them open with no connection. Older per-game workers inside this site are retired;
      workers of other sites on the same domain (e.g. other GitHub Pages projects) are left alone. */
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {

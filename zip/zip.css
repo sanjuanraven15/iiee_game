@@ -224,3 +224,17 @@
 #stage.low-fx #brand img, #stage.low-fx .mascot .bounce, #stage.low-fx #main-greet .mascot g { animation: none !important; }
 #stage.low-fx .btn, #stage.low-fx .balloon, #stage.low-fx .toast-card, #stage.low-fx .summary-card, #stage.low-fx .top3, #stage.low-fx #brand img, #stage.low-fx .ctrl { box-shadow: none; }
 #stage.low-fx .title, #stage.low-fx .tagline, #stage.low-fx .subtitle, #stage.low-fx .hud-level, #stage.low-fx .hud-turn, #stage.low-fx .zip-msg { text-shadow: none; }
+/* in-game row: reset / quit / spin the wheel stay on ONE line */
+#stage .zip-actions { flex-wrap: nowrap; gap: 10px; }
+#stage .zip-actions .btn.small { font-size: 24px; letter-spacing: 2px; padding: 8px 12px; flex: 0 1 auto; }
+#stage.compact .zip-actions .btn.small { font-size: 26px; }
+/* short landscape phones: a smaller bulb leaves room for the button row */
+#stage.compact:not(.portrait) #bulb { width: 290px; height: 395px; }
+/* result screen: the four buttons (next player / scoreboard / menu / spin the wheel) share ONE row */
+#stage:not(.portrait) #screen-summary .menu.horizontal { flex-wrap: nowrap; gap: 22px; max-width: none; }
+#stage:not(.portrait) #screen-summary .menu.horizontal .btn { min-width: 0; padding: 14px 34px; font-size: 46px; }
+#stage.portrait #screen-summary { justify-content: center; padding-top: 60px; }
+/* upright screens: SPACE / DELETE / CLEAR on one row, the big START key on its own row underneath */
+#stage.portrait .key-actions { flex-wrap: wrap; justify-content: center; gap: 22px; max-width: 1800px; }
+#stage.portrait .key-actions .key.go { flex-basis: 100%; min-width: 0; }
+#stage.portrait .zip-hud { padding-right: 200px; }   /* room for the 🔊 corner button */

@@ -322,3 +322,79 @@ html, body {
   .chips { display: none; }
   .tile-body h2 { font-size: 23px; }
 }
+
+/* ---------- link back to the roulette (top-right of the Game Zone page) ---------- */
+.hub-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.wheel-link {
+  font-family: var(--font-display); font-size: 26px; letter-spacing: 3px; text-decoration: none; white-space: nowrap;
+  color: #2b1d00; background: linear-gradient(180deg, #ffe45e, #ffb800); border: 4px solid var(--yellow);
+  border-radius: 18px; padding: 10px 22px; box-shadow: 0 8px 0 #8a6200, 0 12px 24px rgba(0,0,0,.5);
+}
+.wheel-link:active { transform: translateY(6px); box-shadow: 0 2px 0 #8a6200; }
+@media (max-width: 620px) { .wheel-link { font-size: 18px; padding: 8px 14px; } .brand-text span { display: none; } }
+
+/* rounded logo corners (all sizes) */
+.brand-logo { border-radius: 24%; object-fit: cover; }
+/* phones: keep the header and the page title on one line each */
+@media (max-width: 620px) {
+  .brand-text strong { white-space: nowrap; font-size: 22px; letter-spacing: 3px; }
+  .hub-title { white-space: nowrap; font-size: clamp(30px, 10vw, 44px); letter-spacing: 3px; }
+  .wheel-link { white-space: nowrap; }
+}
+/* narrow phones: logo + compact SPIN button side by side, nothing runs off the edge */
+@media (max-width: 620px) {
+  .hub-top { padding: 12px 14px 0; }
+  .brand { gap: 10px; }
+  .wheel-link { font-size: 16px; letter-spacing: 2px; padding: 8px 12px; border-width: 3px; box-shadow: 0 6px 0 #8a6200; }
+}
+@media (max-width: 430px) { .hub-top .brand-text { display: none; } }
+
+/* ==== Game Zone page: always exactly one screen — the previews give up space first ==== */
+html:has(body.zone-page) { height: 100%; overflow: hidden; }
+body.zone-page { height: 100vh; height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+body.zone-page .hub-top { flex: none; }
+body.zone-page .hub { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; padding-bottom: clamp(8px, 2vh, 22px); }
+body.zone-page .hub-title { flex: none; font-size: clamp(30px, min(5.4vw, 8vh), 96px); margin: clamp(2px, 1vh, 8px) 0 0; }
+body.zone-page .hub-sub { flex: none; font-size: clamp(15px, min(2vw, 3.2vh), 36px); margin: 0 0 clamp(6px, 1.6vh, 18px); }
+body.zone-page .hub-foot { flex: none; margin-top: clamp(6px, 1.4vh, 14px); }
+body.zone-page .tiles { flex: 1; min-height: 0; grid-template-rows: minmax(0, 1fr); gap: clamp(10px, 2vw, 24px); }
+body.zone-page .tile { min-height: 0; }
+body.zone-page .screen { aspect-ratio: auto; flex: 1 1 0; min-height: 0; }
+body.zone-page .tile-body { flex: none; }
+/* landscape: three columns side by side; on short screens the description and chips step aside */
+@media (orientation: landscape) {
+  body.zone-page .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (orientation: landscape) and (max-height: 760px) { body.zone-page .chips { display: none; } }
+@media (orientation: landscape) and (max-height: 560px) {
+  body.zone-page .tile-body p, body.zone-page .hub-foot { display: none; }
+  body.zone-page .hub-top { padding-top: 6px; }
+  body.zone-page .brand-logo { width: 42px; height: 42px; }
+  body.zone-page .brand-text span { display: none; }
+  body.zone-page .brand-text strong { font-size: 20px; }
+  body.zone-page .wheel-link { font-size: 16px; padding: 6px 12px; border-width: 3px; box-shadow: 0 5px 0 #8a6200; }
+  body.zone-page .tile-body { padding: 6px 12px 10px; gap: 4px; }
+  body.zone-page .tile-body h2 { font-size: 22px; white-space: normal; }
+  body.zone-page .play { font-size: 17px; padding: 4px 16px; box-shadow: 0 4px 0 #8a6200; }
+  body.zone-page .screen-badge { font-size: 11px; padding: 1px 8px; left: 8px; top: 8px; }
+}
+/* portrait: three rows, each preview as tall as its row allows */
+@media (orientation: portrait) {
+  body.zone-page .tiles { grid-template-columns: 1fr; grid-template-rows: repeat(3, minmax(0, 1fr)); }
+  body.zone-page .screen { flex: 0 0 40%; min-height: 0; }
+  body.zone-page .tile-body { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+}
+@media (orientation: portrait) and (max-height: 700px) { body.zone-page .tile-body p { display: none; } body.zone-page .hub-foot { display: none; } }
+
+/* ---------- Game Zone header: SPIN THE WHEEL + the site-wide volume button ---------- */
+.top-actions { display: flex; align-items: center; gap: 12px; flex: none; }
+.hub-top .sound-btn {
+  flex: none; width: 54px; height: 54px; border-radius: 16px; cursor: pointer; font-size: 26px; line-height: 1;
+  border: 3px solid var(--cyan); background: linear-gradient(180deg, #16244a, #0c1530); color: var(--text);
+  box-shadow: 0 6px 0 #061027, 0 10px 20px rgba(0,0,0,.45);
+}
+.hub-top .sound-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #061027; }
+@media (max-width: 620px), (max-height: 560px) {
+  .top-actions { gap: 8px; }
+  .hub-top .sound-btn { width: 40px; height: 40px; font-size: 19px; border-radius: 12px; border-width: 3px; box-shadow: 0 4px 0 #061027; }
+}

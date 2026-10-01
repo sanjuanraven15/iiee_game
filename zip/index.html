@@ -11,8 +11,10 @@
 <link rel="apple-touch-icon" href="images/logo.png">
 <link rel="icon" href="images/logo.png">
 <title>🔌 Zip — Electrical Circuit Puzzle</title>
-<link rel="stylesheet" href="css/style.css?v=20260925h">
-<link rel="stylesheet" href="zip.css?v=20260925h">
+<script src="../sound-settings.js?v=20261001a"></script>
+<script src="../fh-music.js?v=20261001b"></script>
+<link rel="stylesheet" href="css/style.css?v=20261001a">
+<link rel="stylesheet" href="zip.css?v=20261001f">
 </head>
 <body>
 <div id="viewport">
@@ -26,7 +28,7 @@
     <div class="menu">
       <button class="btn primary" id="btn-play">⚡ PLAY — 2 MINUTES</button>
       <button class="btn" id="btn-scoreboard">🏆 SCOREBOARD</button>
-      <a class="btn ghost small hub-link" href="../index.html">◀ GAME ZONE</a>
+      <a class="btn ghost small hub-link" href="../index.html">🎡 SPIN THE WHEEL</a>
     </div>
     <div class="top3" id="main-top3" aria-label="Top 3 players"></div>
     <div class="hint-box greet" id="main-greet">
@@ -98,7 +100,7 @@
         <div class="zip-actions">
           <button class="btn small ghost" id="btn-reset">↺ RESET WIRE</button>
           <button class="btn small ghost" id="btn-quit">✕ QUIT</button>
-          <a class="btn small ghost hub-link" href="../index.html">🏠 GAME ZONE</a>
+          <a class="btn small ghost hub-link" href="../index.html">🎡 SPIN THE WHEEL</a>
         </div>
       </aside>
     </div>
@@ -122,7 +124,7 @@
       <button class="btn primary" id="summary-next">👤 NEXT PLAYER</button>
       <button class="btn" id="summary-scores">🏆 SCOREBOARD</button>
       <button class="btn ghost" id="summary-menu">MENU</button>
-      <a class="btn ghost hub-link" href="../index.html">🏠 GAME ZONE</a>
+      <a class="btn ghost hub-link" href="../index.html">🎡 SPIN THE WHEEL</a>
     </div>
   </section>
 
@@ -138,6 +140,8 @@
     </div>
   </div>
 
+  <button class="btn small ghost corner-right" id="sound-btn" aria-label="Volume">🔊</button>
+
   <div id="brand" aria-hidden="true">
     <img src="images/logo.png" alt="Fuji-Haya logo" width="136" height="136">
     <div class="brand-text"><strong>FUJI-HAYA</strong><span>ELECTRIC CORPORATION OF THE PHILIPPINES</span></div>
@@ -151,7 +155,11 @@
   <div class="rotate-sub">This game plays in landscape</div>
 </div>
 
-<script src="js/mascot.js?v=20260925h"></script>
-<script src="zip.js?v=20260925h"></script>
+<script src="js/mascot.js?v=20261001a"></script>
+<script src="zip.js?v=20261001a"></script>
+<script>
+if (window.FHSound) FHSound.attach(document.getElementById('sound-btn'));   /* one volume for the whole site */
+if (window.FHMusic) FHMusic.autoplay('zip');                              /* background music, like Electrical Troll */
+</script>
 </body>
 </html>

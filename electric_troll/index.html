@@ -12,7 +12,8 @@
 <link rel="apple-touch-icon" href="images/logo.png">
 <link rel="icon" href="images/logo.png">
 <title>⚡ Electrical Troll</title>
-<link rel="stylesheet" href="css/style.css?v=20260925h">
+<script src="../sound-settings.js?v=20261001a"></script>
+<link rel="stylesheet" href="css/style.css?v=20261001b">
 </head>
 <body>
 <div id="viewport">
@@ -37,7 +38,7 @@
       <button class="btn primary" id="btn-play-turn">⚡ PLAY — 10 LIVES</button>
       <button class="btn" id="btn-scoreboard">🏆 SCOREBOARD</button>
       <button class="btn ghost" id="btn-main-settings">⚙ SETTINGS</button>
-      <a class="btn ghost small hub-link" href="../index.html">◀ GAME ZONE</a>
+      <a class="btn ghost small hub-link" href="../index.html">🎡 SPIN THE WHEEL</a>
     </div>
     <!-- Busby greets new players -->
     <div class="top3" id="main-top3" aria-label="Top 3 players"></div>
@@ -188,7 +189,7 @@
           <button class="btn" id="btn-restart">↻ RESTART LEVEL</button>
           <button class="btn" id="btn-pause-select">QUIT TO MENU</button>
           <button class="btn ghost" id="btn-pause-fullscreen">⛶ FULLSCREEN</button>
-          <a class="btn ghost hub-link" href="../index.html">🏠 GAME ZONE</a>
+          <a class="btn ghost hub-link" href="../index.html">🎡 SPIN THE WHEEL</a>
         </div>
       </div>
     </div>
@@ -231,13 +232,26 @@
   <div class="rotate-sub">This game plays in landscape</div>
 </div>
 
-<script src="js/storage.js?v=20260925h"></script>
-<script src="js/audio.js?v=20260925h"></script>
-<script src="js/levels.js?v=20260925h"></script>
-<script src="js/traps.js?v=20260925h"></script>
-<script src="js/mascot.js?v=20260925h"></script>
-<script src="js/game.js?v=20260925h"></script>
-<script src="js/fx.js?v=20260925h"></script>
-<script src="js/ui.js?v=20260925h"></script>
+<script src="js/storage.js?v=20261001a"></script>
+<script src="js/audio.js?v=20261001a"></script>
+<script src="js/levels.js?v=20261001a"></script>
+<script src="js/traps.js?v=20261001a"></script>
+<script src="js/mascot.js?v=20261001a"></script>
+<script src="js/game.js?v=20261001a"></script>
+<script src="js/fx.js?v=20261001a"></script>
+<script src="js/ui.js?v=20261001a"></script>
+<script>
+/* one volume for the whole site: the 🎵 button opens the shared slider; the old music-only slider and the
+   sound on/off switch step aside so nothing can silence the game behind the knob's back */
+(function () {
+  try { settings.sound = true; if (!(settings.music > 0)) settings.music = 0.5; saveSettings(); } catch (e) {}
+  var pop = document.getElementById('music-pop'); if (pop) pop.remove();
+  var sw = document.getElementById('settings-sound'); if (sw) sw.style.display = 'none';
+  if (window.FHSound) {
+    var b = FHSound.attach(document.getElementById('music-btn'));
+    if (b) b.addEventListener('click', function () { try { Sfx.init(); if (!Music.playing()) { Music.setVolume(settings.music); Music.start(); } } catch (e) {} });
+  }
+})();
+</script>
 </body>
 </html>

@@ -1,0 +1,281 @@
+/* 🎡 FUJI-HAYA GAME SPIN — the roulette main page (fonts, colours and header come from hub.css) */
+
+/* the whole page is exactly one screen: header on top, the rest shared by title, wheel and buttons.
+   The wheel takes whatever space is left (sized from the free box in JS), so nothing ever scrolls. */
+html:has(body.spin-page) { height: 100%; overflow: hidden; }
+body.spin-page { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+body.spin-page .hub-top { flex: none; }
+.spin {
+  flex: 1; min-height: 0; width: 100%; max-width: 1500px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr; grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  grid-template-areas: 'title' 'sub' 'wheel' 'actions' 'foot';
+  justify-items: center; align-items: center; padding: 0 16px clamp(8px, 2vh, 20px); gap: clamp(4px, 1.2vh, 12px);
+}
+.spin .hub-title { grid-area: title; margin: 0; line-height: 1.05; font-size: clamp(32px, min(7vw, 8vh), 96px); white-space: nowrap; }
+.spin .hub-sub { grid-area: sub; margin: 0; font-size: clamp(15px, min(3.4vw, 3.2vh), 36px); }
+.spin .hub-foot { grid-area: foot; margin: 0; font-size: clamp(10px, 1.4vh, 14px); }
+.wheel-area { grid-area: wheel; width: 100%; height: 100%; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.spin-actions { grid-area: actions; }
+/* wide screens (laptops, TVs, sideways phones): wheel on the left, buttons on the right */
+@media (min-aspect-ratio: 6/5) {
+  .spin { grid-template-columns: minmax(0, 1.25fr) minmax(240px, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto;
+          grid-template-areas: 'title title' 'sub sub' 'wheel actions' 'foot foot'; column-gap: clamp(16px, 4vw, 70px); }
+  .spin-actions { width: min(100%, 460px); justify-self: start; }
+}
+
+/* ---------- the wheel ---------- */
+.wheel-wrap {
+  --size: min(70vw, 40vh);            /* replaced by the measured size of the free box */
+  position: relative; width: var(--size); height: var(--size); flex: none;
+}
+.wheel {
+  width: 100%; height: 100%; display: block; overflow: visible;
+  filter: drop-shadow(0 18px 40px rgba(0,0,0,.6)) drop-shadow(0 0 30px rgba(255,214,10,.25));
+}
+#wheel-spin { will-change: transform; }
+.seg-icon { font-size: 46px; }
+.seg-name { font-family: var(--font-display); font-size: 30px; letter-spacing: 2px; }
+
+/* the arrow at the top that picks the winner */
+.pointer {
+  position: absolute; left: 50%; top: -4%; z-index: 3; transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: calc(var(--size) * .055) solid transparent; border-right: calc(var(--size) * .055) solid transparent;
+  border-top: calc(var(--size) * .11) solid var(--yellow);
+  filter: drop-shadow(0 4px 0 #7a5c00) drop-shadow(0 6px 10px rgba(0,0,0,.6));
+}
+body.is-spinning .pointer { animation: pointerKick .12s ease-in-out infinite alternate; }
+@keyframes pointerKick { to { transform: translateX(-50%) rotate(-8deg); } }
+
+/* bulbs around the rim: they chase while the wheel spins */
+.rim-lights { position: absolute; inset: -3.5%; pointer-events: none; }
+.rim-lights i {
+  position: absolute; left: 50%; top: 50%; width: 3.2%; height: 3.2%; margin: -1.6% 0 0 -1.6%; border-radius: 50%;
+  background: #fff3b0; box-shadow: 0 0 10px 3px rgba(255,214,10,.7);
+  transform: rotate(var(--a)) translateY(calc(var(--size) * -.535));
+  opacity: calc(.35 + var(--k) * .65);
+}
+body.is-spinning .rim-lights i { animation: rimChase .3s steps(1) infinite; animation-delay: calc(var(--k) * .15s); }
+@keyframes rimChase { 0% { opacity: 1; } 50% { opacity: .25; } }
+
+/* ---------- buttons ---------- */
+.spin-actions { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.6vh, 16px); width: min(92vw, 520px); }
+.spin-btn, .zone-btn {
+  width: 100%; font-family: var(--font-display); letter-spacing: 4px; text-align: center; text-decoration: none; cursor: pointer;
+  border-radius: 24px; transition: transform .06s, box-shadow .06s, filter .15s;
+}
+.spin-btn {
+  font-size: clamp(26px, min(6vw, 6vh), 56px); padding: clamp(6px, 1.3vh, 14px) 20px; border: 5px solid var(--yellow);
+  background: linear-gradient(180deg, #ffe45e, #ffb800); color: #2b1d00;
+  box-shadow: 0 10px 0 #8a6200, 0 14px 30px rgba(0,0,0,.6), 0 0 30px rgba(255,214,10,.45);
+  animation: spinBtnPulse 1.6s ease-in-out infinite;
+}
+@keyframes spinBtnPulse { 50% { transform: scale(1.04); } }
+.spin-btn:active { transform: translateY(8px); box-shadow: 0 2px 0 #8a6200; animation: none; }
+.spin-btn:disabled { filter: grayscale(.4) brightness(.8); cursor: default; animation: none; }
+.zone-btn {
+  font-size: clamp(18px, min(4vw, 3.6vh), 34px); padding: clamp(4px, 1vh, 10px) 20px; border: 4px solid var(--cyan); color: var(--text);
+  background: linear-gradient(180deg, #16244a, #0c1530); box-shadow: 0 8px 0 #061027, 0 12px 24px rgba(0,0,0,.5);
+}
+.zone-btn:active { transform: translateY(6px); box-shadow: 0 2px 0 #061027; }
+.spin-btn:focus-visible, .zone-btn:focus-visible { outline: 5px solid #fff; outline-offset: 4px; }
+
+/* ---------- the winner banner ---------- */
+.winner {
+  position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+  background: rgba(3, 6, 20, .72); padding: 20px;
+}
+.winner.hidden { display: none; }
+.winner-card {
+  text-align: center; background: var(--panel); border: 6px solid var(--yellow); border-radius: 36px;
+  padding: 26px clamp(24px, 6vw, 70px); box-shadow: 0 0 80px rgba(255,214,10,.45);
+  animation: winnerPop .45s cubic-bezier(.2,1.5,.45,1);
+}
+@keyframes winnerPop { from { transform: scale(.5); opacity: 0; } }
+.winner-kicker { font-family: var(--font-display); font-size: clamp(22px, 3vw, 34px); letter-spacing: 5px; color: var(--cyan); }
+.winner-name {
+  font-family: var(--font-display); font-size: clamp(48px, 9vw, 110px); letter-spacing: 4px; line-height: 1.05; color: var(--yellow);
+  text-shadow: 0 0 26px rgba(255,214,10,.6), 0 8px 0 #7a5c00;
+}
+.winner-go { font-family: var(--font-display); font-size: clamp(22px, 3vw, 34px); letter-spacing: 5px; color: var(--text); margin-top: 6px; }
+.winner-go .dots i { font-style: normal; animation: dot 1s infinite; }
+.winner-go .dots i:nth-child(2) { animation-delay: .2s; } .winner-go .dots i:nth-child(3) { animation-delay: .4s; }
+@keyframes dot { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
+
+/* short screens (sideways phones): smaller header, no footer line */
+@media (max-height: 520px) {
+  .spin .hub-foot { display: none; }
+  .hub-top { padding-top: 6px; } .brand-logo { width: 42px; height: 42px; } .brand-text span { display: none; } .brand-text strong { font-size: 20px; }
+}
+@media (max-width: 620px) { .hub-title .deco { display: none; } .brand-text span { display: none; } .brand-text strong { font-size: 24px; } .brand-logo { width: 56px; height: 56px; } }
+@media (prefers-reduced-motion: reduce) { .spin-btn, body.is-spinning .rim-lights i, body.is-spinning .pointer { animation: none; } }
+
+/* the wheel floats in the middle of its box, so its size never props the box open (the box decides, the wheel follows) */
+.wheel-area { position: relative; align-self: stretch; }
+.wheel-wrap { position: absolute; left: 50%; top: 50%; margin: 0; transform: translate(-50%, calc(-50% + var(--size) * .02)); }
+
+/* =====================================================================
+   3D WHEEL — tilted back in perspective, with a thick golden edge,
+   a glossy face, a stand and a floor shadow; plus spin / win effects
+   ===================================================================== */
+.wheel-wrap { --tilt: 26deg; perspective: calc(var(--size) * 3); }
+/* light rays turning slowly behind the wheel (faster while it spins) */
+.rays {
+  position: absolute; inset: -42%; z-index: 0; pointer-events: none; border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(255,214,10,.20) 0deg 9deg, rgba(255,214,10,0) 9deg 22.5deg);
+  -webkit-mask: radial-gradient(circle, #000 18%, rgba(0,0,0,.55) 40%, transparent 68%);
+          mask: radial-gradient(circle, #000 18%, rgba(0,0,0,.55) 40%, transparent 68%);
+  animation: raysTurn 40s linear infinite;
+}
+body.is-spinning .rays { animation-duration: 5s; }
+body.won .rays { background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.32) 0deg 9deg, rgba(255,214,10,0) 9deg 22.5deg); }
+@keyframes raysTurn { to { transform: rotate(360deg); } }
+
+/* floor shadow + stand */
+.floor-shadow {
+  position: absolute; left: 6%; right: 6%; bottom: -15%; height: 14%; z-index: 0; border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,.65) 0%, rgba(0,0,0,.35) 45%, transparent 72%);
+}
+.stand {
+  position: absolute; left: 36%; width: 28%; top: 48%; height: 61%; z-index: 0;
+  background: linear-gradient(90deg, #6b4a00 0%, #ffd34d 30%, #fff1a6 46%, #e0a400 62%, #6b4a00 100%);
+  clip-path: polygon(40% 0, 60% 0, 100% 92%, 100% 100%, 0 100%, 0 92%);
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.5));
+}
+
+/* the tilted wheel itself */
+.wheel-3d {
+  position: absolute; inset: 0; z-index: 2; transform-style: preserve-3d;
+  transform: rotateX(var(--tilt)); transform-origin: 50% 50%;
+  animation: wheelBob 3.2s ease-in-out infinite;
+}
+@keyframes wheelBob {
+  0%, 100% { transform: rotateX(var(--tilt)) translateY(0); }
+  50%      { transform: rotateX(calc(var(--tilt) + 3deg)) translateY(-1.4%); }
+}
+body.is-spinning .wheel-3d { animation: none; }
+body.won .wheel-3d { animation: wheelShake .55s cubic-bezier(.36,.07,.19,.97); }
+@keyframes wheelShake {
+  0%, 100% { transform: rotateX(var(--tilt)); }
+  15% { transform: rotateX(var(--tilt)) translateX(-2.2%) rotateZ(-1.5deg); }
+  35% { transform: rotateX(var(--tilt)) translateX(2%) rotateZ(1.2deg); }
+  55% { transform: rotateX(var(--tilt)) translateX(-1.2%); }
+  75% { transform: rotateX(var(--tilt)) translateX(.8%); }
+}
+/* the edge: ten golden discs stacked behind the face make a solid rim */
+.wheel-depth { position: absolute; inset: 0; transform-style: preserve-3d; }
+.wheel-depth i {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: linear-gradient(180deg, #ffe27a 0%, #c98a00 55%, #7a5200 100%);
+  transform: translateZ(calc(var(--size) * -.0095 * var(--k)));
+}
+.wheel-depth i:last-child { background: #3a2800; box-shadow: 0 0 calc(var(--size) * .08) rgba(0,0,0,.7); }
+.wheel { position: absolute; inset: 0; filter: none; transform: translateZ(1px); }
+/* glossy face that does not turn with the wheel (it is the light, not the paint) */
+.gloss {
+  position: absolute; inset: 1.5%; border-radius: 50%; pointer-events: none; transform: translateZ(2px);
+  background:
+    radial-gradient(ellipse 60% 42% at 34% 22%, rgba(255,255,255,.42), rgba(255,255,255,0) 70%),
+    linear-gradient(160deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,.22) 100%);
+}
+.rim-lights { z-index: 3; transform: translateZ(3px); }
+body.won .rim-lights i { animation: rimChase .14s steps(1) infinite; }
+
+/* the pointer: a golden pin standing over the top of the wheel */
+.pointer {
+  position: absolute; left: 50%; top: calc(var(--size) * -.035); z-index: 5;
+  width: calc(var(--size) * .13); height: calc(var(--size) * .17);
+  transform: translateX(-50%); transform-origin: 50% 22%;
+  border: 0; filter: drop-shadow(0 5px 6px rgba(0,0,0,.55));
+}
+.pointer span {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, #a87400 0%, #ffe066 45%, #fff6c4 55%, #d39a00 100%);
+  clip-path: polygon(50% 100%, 6% 34%, 12% 16%, 30% 4%, 50% 0, 70% 4%, 88% 16%, 94% 34%);
+}
+.pointer span::after {
+  content: ""; position: absolute; left: 34%; top: 14%; width: 32%; height: 25%; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffb3c1, #ff2f5a 55%, #8a0020);
+}
+body.is-spinning .pointer { animation: none; }
+.pointer.flick, body.is-spinning .pointer.flick { animation: pointerFlick .16s ease-out; }
+@keyframes pointerFlick { 0% { transform: translateX(-50%) rotate(0); } 35% { transform: translateX(-50%) rotate(-24deg); } 100% { transform: translateX(-50%) rotate(0); } }
+
+/* the winning slice flashes */
+.seg-flash { opacity: 0; pointer-events: none; }
+.seg-flash.win { animation: segFlash .3s ease-in-out 8 alternate; }
+@keyframes segFlash { to { opacity: .55; } }
+
+/* screen pop on the win */
+.win-flash { position: fixed; inset: 0; z-index: 45; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(255,250,220,.95), rgba(255,214,10,.35) 45%, transparent 75%); }
+body.won .win-flash { animation: winFlash .7s ease-out; }
+@keyframes winFlash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
+
+/* sparks + confetti canvas */
+.fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 48; pointer-events: none; }
+
+/* little golden sparkles drifting up the background */
+.bg-sparkles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.bg-sparkles i {
+  position: absolute; bottom: -12px; width: 6px; height: 6px; border-radius: 50%;
+  background: #ffe9a8; box-shadow: 0 0 10px 3px rgba(255,214,10,.55); opacity: 0;
+  animation: sparkUp 9s linear infinite;
+}
+.bg-sparkles i:nth-child(1)  { left: 6%;  animation-delay: 0s; }
+.bg-sparkles i:nth-child(2)  { left: 14%; animation-delay: 3.1s; animation-duration: 11s; }
+.bg-sparkles i:nth-child(3)  { left: 23%; animation-delay: 5.6s; }
+.bg-sparkles i:nth-child(4)  { left: 31%; animation-delay: 1.4s; animation-duration: 12s; }
+.bg-sparkles i:nth-child(5)  { left: 42%; animation-delay: 7.2s; }
+.bg-sparkles i:nth-child(6)  { left: 53%; animation-delay: 2.3s; animation-duration: 10s; }
+.bg-sparkles i:nth-child(7)  { left: 61%; animation-delay: 4.8s; }
+.bg-sparkles i:nth-child(8)  { left: 70%; animation-delay: .7s;  animation-duration: 13s; }
+.bg-sparkles i:nth-child(9)  { left: 78%; animation-delay: 6.3s; }
+.bg-sparkles i:nth-child(10) { left: 86%; animation-delay: 3.9s; animation-duration: 11s; }
+.bg-sparkles i:nth-child(11) { left: 93%; animation-delay: 8.1s; }
+.bg-sparkles i:nth-child(12) { left: 48%; animation-delay: 5.1s; animation-duration: 14s; }
+@keyframes sparkUp { 0% { transform: translateY(0) scale(.6); opacity: 0; } 12% { opacity: .9; } 80% { opacity: .5; } 100% { transform: translateY(-105vh) scale(1.1); opacity: 0; } }
+body.spin-page .hub-top, body.spin-page .spin { position: relative; z-index: 1; }
+
+/* the SPIN button gets a light sweep across it */
+.spin-btn { position: relative; overflow: hidden; }
+.spin-btn::after {
+  content: ""; position: absolute; top: -20%; bottom: -20%; width: 30%; left: -40%; pointer-events: none;
+  background: linear-gradient(100deg, rgba(255,255,255,0), rgba(255,255,255,.75), rgba(255,255,255,0));
+  transform: skewX(-18deg); animation: btnShine 2.6s ease-in-out infinite;
+}
+.spin-btn:disabled::after { animation: none; opacity: 0; }
+@keyframes btnShine { 0%, 55% { left: -40%; } 100% { left: 130%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rays, .wheel-3d, .bg-sparkles i, .spin-btn::after, body.won .wheel-3d, body.won .win-flash { animation: none; }
+}
+/* the stand + floor hang below the wheel, so the wheel sits a little above the middle of its box */
+.wheel-wrap { transform: translate(-50%, calc(-50% - var(--size) * .055)); }
+
+/* ---------- flatter 3D: the wheel faces the player, the thick gold edge still shows ---------- */
+.wheel-wrap { --tilt: 11deg; }
+.wheel-depth i { transform: translateZ(calc(var(--size) * -.016 * var(--k))); }
+@keyframes wheelBob {
+  0%, 100% { transform: rotateX(var(--tilt)) translateY(0); }
+  50%      { transform: rotateX(calc(var(--tilt) + 2deg)) translateY(-1.2%); }
+}
+.stand { top: 50%; height: 57%; }
+.floor-shadow { bottom: -12%; }
+
+/* ---------- sound on / off ---------- */
+.sound-btn {
+  flex: none; width: 54px; height: 54px; border-radius: 16px; cursor: pointer; font-size: 26px; line-height: 1;
+  border: 3px solid var(--cyan); background: linear-gradient(180deg, #16244a, #0c1530); color: var(--text);
+  box-shadow: 0 6px 0 #061027, 0 10px 20px rgba(0,0,0,.45);
+}
+.sound-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #061027; }
+.sound-btn.off { border-color: var(--line); opacity: .75; }
+@media (max-width: 620px), (max-height: 520px) { .sound-btn { width: 42px; height: 42px; font-size: 20px; border-radius: 12px; } }
+/* a bigger wheel: its column gets more of the width on wide screens */
+@media (min-aspect-ratio: 6/5) { .spin { grid-template-columns: minmax(0, 1.7fr) minmax(220px, 1fr); column-gap: clamp(12px, 3vw, 56px); } }
+/* bigger wheel, still balanced in its box: shorter floor shadow, the group centred between pointer and base */
+.floor-shadow { bottom: -8%; height: 10%; }
+.wheel-wrap { transform: translate(-50%, calc(-50% - var(--size) * .025)); }
+/* wide screens: the hint line under the buttons makes way for the wheel */
+@media (min-aspect-ratio: 6/5) { .spin .hub-foot { display: none; } .spin { grid-template-areas: "title title" "sub sub" "wheel actions"; grid-template-rows: auto auto minmax(0, 1fr); } }

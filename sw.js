@@ -10,14 +10,14 @@
    Bump CACHE_VERSION on a deploy to re-download everything in one go (not required for updates to show). */
 'use strict';
 
-const CACHE_VERSION = '2026-09-25a';
+const CACHE_VERSION = '2026-10-01d';
 const CACHE = 'fh-gamezone-' + CACHE_VERSION;
 const OLD_CACHES = /^(fh-gamezone-|fh-hub-|electrical-troll-|zip-circuit-)/;
 const NAV_TIMEOUT_MS = 4000;
 
 const FILES = [
   /* hub */
-  './', 'index.html', 'hub.css', 'hub-manifest.json',
+  './', 'index.html', 'sound-settings.js', 'fh-music.js', 'roulette.css', 'game-zone.html', 'hub.css', 'hub-manifest.json',
   /* Electrical Troll */
   'electric_troll/', 'electric_troll/index.html', 'electric_troll/manifest.json', 'electric_troll/css/style.css',
   'electric_troll/js/storage.js', 'electric_troll/js/audio.js', 'electric_troll/js/levels.js', 'electric_troll/js/traps.js',

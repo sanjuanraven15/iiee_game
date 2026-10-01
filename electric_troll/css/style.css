@@ -537,3 +537,6 @@ html, body {
 #stage.low-fx #brand img, #stage.low-fx .mascot .bounce, #stage.low-fx #main-greet .mascot g { animation: none !important; }
 #stage.low-fx .btn, #stage.low-fx .balloon, #stage.low-fx .toast-card, #stage.low-fx .summary-card, #stage.low-fx .top3, #stage.low-fx #brand img, #stage.low-fx .ctrl { box-shadow: none; }
 #stage.low-fx .title, #stage.low-fx .tagline, #stage.low-fx .subtitle, #stage.low-fx .hud-level, #stage.low-fx .hud-turn, #stage.low-fx .zip-msg { text-shadow: none; }
+/* upright screens: SPACE / DELETE / CLEAR on one row, the big START key on its own row underneath */
+#stage.portrait .key-actions { flex-wrap: wrap; justify-content: center; gap: 22px; max-width: 1800px; }
+#stage.portrait .key-actions .key.go { flex-basis: 100%; min-width: 0; }

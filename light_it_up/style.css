@@ -582,3 +582,5 @@ body.boom-body #app { animation: bodyshake .9s ease; }
 #app.low-fx .stage-wrap { box-shadow: 0 0 0 5px var(--line); }
 #app.low-fx .timer, #app.low-fx .btn, #app.low-fx .card, #app.low-fx .summary-card, #app.low-fx .top3, #app.low-fx .balloon, #app.low-fx #brand img { box-shadow: none; }
 #app.low-fx .title, #app.low-fx .tagline, #app.low-fx .subtitle, #app.low-fx .hud-level { text-shadow: none; }
+/* no browser scrolling / zooming anywhere on the board (Safari checks the element under the finger) */
+.stage-wrap, #stage, #stage * { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }

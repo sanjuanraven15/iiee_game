@@ -581,6 +581,61 @@
     );
   }
 
+  /* ---------- Real-life wiring rules ----------
+     1) The battery's + is the source, and a switch always sits between + and the bulbs it controls:
+        + → switch → bulb → −. A switch on the return side (+ → bulb → switch → −) does turn the bulb
+        off, but it leaves the bulb connected to + — in a house that means a "dead" lamp that can still
+        shock you. So that wiring is not accepted.
+     2) Every switch controls the same number of bulbs as in the level's real-life design: two rooms
+        get two independent switches, not one switch hidden behind the other. */
+  /** With this switch OFF, can + still reach any bulb it controls (without going round through −)? */
+  function switchOnLiveSide(sw, an) {
+    sw.on = false;
+    const off = analyze();
+    sw.on = true;
+    const ctl = parts.filter((b) => b.type === "bulb" && an.brightness[b.id] > 0 && off.brightness[b.id] === 0);
+    if (!ctl.length) return true;
+    const edges = parts.filter((b) => b.type === "bulb").map((b) => [off.find(b.id + ".a"), off.find(b.id + ".b")]);
+    const seen = new Set([off.P]), q = [off.P];
+    while (q.length) {                       // walk from + over cables, closed switches and bulbs, never through −
+      const n = q.shift();
+      edges.forEach(([u, v]) => {
+        const o = u === n ? v : v === n ? u : null;
+        if (o !== null && o !== off.N && !seen.has(o)) { seen.add(o); q.push(o); }
+      });
+    }
+    return !ctl.some((b) => {
+      const u = off.find(b.id + ".a"), v = off.find(b.id + ".b");
+      return (u !== off.N && seen.has(u)) || (v !== off.N && seen.has(v));
+    });
+  }
+  /** How many bulbs each switch controls, sorted — e.g. [2, 2] for two rooms, [1, 1, 1, 3] for a master + 3 rooms. */
+  function switchShape(an) {
+    return parts
+      .filter((p) => p.type === "switch")
+      .map((sw) => {
+        sw.on = false;
+        const off = analyze();
+        sw.on = true;
+        return parts.filter((b) => b.type === "bulb" && an.brightness[b.id] > 0 && off.brightness[b.id] === 0).length;
+      })
+      .sort((a, b) => a - b)
+      .join(",");
+  }
+  /** The shape of the level's own solution (worked out once per level from its reference wiring). */
+  const designShape = {};
+  function levelShape(level) {
+    const k = LEVELS.indexOf(level);
+    if (designShape[k] !== undefined) return designShape[k];
+    const saved = { cables, on: parts.map((p) => p.on) };
+    cables = level.sol.map(([a, b]) => ({ a, b }));
+    parts.forEach((p) => { if (p.type === "switch") p.on = true; });
+    designShape[k] = switchShape(analyze());
+    cables = saved.cables;
+    parts.forEach((p, i) => (p.on = saved.on[i]));
+    return designShape[k];
+  }
+
   /* ---------- Drawing: chibi parts ---------- */
   function drawBattery(g, p, an) {
     const { x, y } = p;
@@ -1361,6 +1416,25 @@
         render({ wobble: bypassed.id });
         say(
           `The bulbs are on, but switch ${bypassed.id} isn't doing anything! ⚠ The cables skipped it — wire the switch INTO the path so it controls the bulb.`,
+        );
+        return;
+      }
+      // Real-life rule 1: battery + → switch → bulb, never the switch on the way back to −.
+      const returnSide = parts
+        .filter((p) => p.type === "switch")
+        .find((sw) => !switchOnLiveSide(sw, an));
+      if (returnSide) {
+        render({ wobble: returnSide.id });
+        say(
+          `Careful! ⚠ Switch ${returnSide.id} is on the way BACK to −. In real wiring the power goes + → SWITCH → bulb → −, so a switched-off bulb is truly dead and safe to touch. Move the switch to the + side!`,
+        );
+        return;
+      }
+      // Real-life rule 2: each switch controls its own bulbs, like the level's design.
+      if (parts.some((p) => p.type === "switch") && switchShape(an) !== levelShape(level)) {
+        render({ shake: true });
+        say(
+          "Almost! 🏠 The bulbs light, but one switch is controlling the wrong bulbs. Give each switch its OWN bulbs — check the goal: + → switch → its bulbs → −.",
         );
         return;
       }
@@ -2401,6 +2475,13 @@
     function start() {
       if (running) return;
       running = true;
+      // same chiptune music engine as the other games (fh-music.js); the old loop stays as a fallback
+      if (window.FHMusic) {
+        FHMusic.autoplay("light");
+        FHMusic.play("light");
+        updateBtn();
+        return;
+      }
       audioEl = new Audio("bgm.mp3");
       audioEl.loop = true;
       audioEl.volume = muted ? 0 : 0.5;
@@ -2678,6 +2759,21 @@
     if (t) startDrag(e, t);
   });
   window.addEventListener("pointermove", moveDrag); // keep tracking even when the finger leaves the board
+  /* iPhone / iPad: Safari can take a finger over for scrolling / zooming partway through a drag (it does not
+     fully honour touch-action on SVG shapes), after which no more pointer events arrive and the cable
+     freezes. So while a cable is in hand, touchmove's default is blocked (keeps the gesture ours) and the
+     touch events drive the cable too. Taps are untouched, so switches and cables still respond to a tap. */
+  const firstTouch = (e) => e.changedTouches && e.changedTouches[0];
+  document.addEventListener("touchmove", (e) => {
+    if (!drag) return;
+    e.preventDefault();
+    const t = firstTouch(e);
+    if (t) moveDrag(t);
+  }, { passive: false });
+  document.addEventListener("touchend", (e) => {
+    const t = firstTouch(e);
+    if (drag && t) endDrag(t);
+  });
   window.addEventListener("pointerup", endDrag);
   /* the browser took the touch away (a system gesture): drop the cable in hand, connect nothing */
   window.addEventListener("pointercancel", () => {
@@ -2808,6 +2904,29 @@
       } catch (e) { /* offline support is a bonus, never a blocker */ }
     });
   }
+
+  /* test hook (like window.ZIP / window.ET in the other games): judge any wiring on any level */
+  window.LIU = {
+    LEVELS,
+    judge(levelIndex, wiring, switchesOn = true) {
+      const saved = { parts, cables };
+      const level = LEVELS[levelIndex];
+      parts = randomizedParts(level);
+      cables = wiring.map(([a, b]) => ({ a, b }));
+      parts.forEach((p) => { if (p.type === "switch") p.on = switchesOn; });
+      const an = analyze(), bulbs = parts.filter((p) => p.type === "bulb"), sws = parts.filter((p) => p.type === "switch");
+      let r = "OK";
+      if (an.short) r = "short";
+      else if (!bulbs.every((b) => an.brightness[b.id] > 0)) r = "not all lit";
+      else if (level.bright && !bulbs.every((b) => an.brightness[b.id] >= 0.99)) r = "too dim";
+      else if (level.dim && !bulbs.every((b) => an.brightness[b.id] < 0.99)) r = "too bright";
+      else if (sws.find((sw) => !switchControlsABulb(sw, an))) r = "switch bypassed";
+      else if (sws.find((sw) => !switchOnLiveSide(sw, an))) r = "switch on return side";
+      else if (sws.length && switchShape(an) !== levelShape(level)) r = "switches control wrong bulbs";
+      ({ parts, cables } = saved);
+      return r;
+    },
+  };
 
   mascot("happy");
   mascot("cheer", "mascot-home");

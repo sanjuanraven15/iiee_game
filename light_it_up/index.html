@@ -10,7 +10,9 @@
 <link rel="apple-touch-icon" href="images/logo.png">
 <link rel="icon" href="images/logo.png">
 <title>💡 Light It Up! — Fuji-Haya</title>
-<link rel="stylesheet" href="style.css?v=54">
+<script src="../sound-settings.js?v=20261001a"></script>
+<script src="../fh-music.js?v=20261001b"></script>
+<link rel="stylesheet" href="style.css?v=55">
 </head>
 <body>
 <div id="viewport">
@@ -67,7 +69,7 @@
         <div class="controls">
           <button class="btn small ghost" id="btn-clear">🧹 CLEAR CABLES</button>
           <button class="btn small ghost" id="btn-quit">✕ END TURN</button>
-          <a class="btn small ghost hub-link" href="../index.html">🏠 GAME ZONE</a>
+          <a class="btn small ghost hub-link" href="../index.html">🎡 SPIN THE WHEEL</a>
         </div>
       </aside>
     </div>
@@ -85,7 +87,7 @@
         <button class="btn" id="btn-howto">📖 HOW TO PLAY</button>
         <button class="btn" id="btn-sequence">📋 SEQUENCE</button>
       </div>
-      <a class="btn ghost small hub-link" href="../index.html">◀ GAME ZONE</a>
+      <a class="btn ghost small hub-link" href="../index.html">🎡 SPIN THE WHEEL</a>
     </div>
     <p class="inputs-hint">👆 Touch &nbsp;·&nbsp; 🖱️ Mouse &nbsp;·&nbsp; 🎮 Controller <span id="gp-status"></span></p>
     <div class="top3" id="main-top3" aria-label="Top 3 players"></div>
@@ -122,6 +124,7 @@
           <li><span class="ico">👆🔘</span><b>Tap a switch</b> to flip it ON / OFF.</li>
           <li><span class="ico">⌨️</span>Type your name with the <b>on-screen keyboard</b> before your turn.</li>
           <li><span class="ico">💥</span>Never connect <b>+ straight to −</b> — the bulbs explode and you lose precious seconds ⏰.</li>
+          <li><span class="ico">🔌</span>Real wiring: power starts at the battery <b>+</b>, goes through the <b>switch FIRST</b>, then the bulb, then back to <b>−</b>. Each switch controls <b>its own</b> bulbs.</li>
         </ul>
       </div>
       <div class="tab-body hidden" id="tut-mouse">
@@ -131,6 +134,7 @@
           <li><span class="ico">🖱️🔘</span><b>Click a switch</b> to flip it ON / OFF.</li>
           <li><span class="ico">⌨️</span>Type your name with the keyboard or the on-screen keys.</li>
           <li><span class="ico">💥</span>Never connect <b>+ straight to −</b> — the bulbs explode and you lose precious seconds ⏰.</li>
+          <li><span class="ico">🔌</span>Real wiring: power starts at the battery <b>+</b>, goes through the <b>switch FIRST</b>, then the bulb, then back to <b>−</b>. Each switch controls <b>its own</b> bulbs.</li>
         </ul>
       </div>
       <div class="tab-body hidden" id="tut-pad">
@@ -194,7 +198,7 @@
     <div class="menu horizontal">
       <button class="btn primary" id="btn-result-home">👤 NEXT PLAYER</button>
       <button class="btn" id="btn-result-board">🏆 SCOREBOARD</button>
-      <a class="btn ghost hub-link" href="../index.html">🏠 GAME ZONE</a>
+      <a class="btn ghost hub-link" href="../index.html">🎡 SPIN THE WHEEL</a>
     </div>
   </div>
 
@@ -208,7 +212,7 @@
     <ol class="board" id="board-list"></ol>
     <div class="menu horizontal">
       <button class="btn primary" id="btn-board-play">⚡ PLAY</button>
-      <a class="btn ghost hub-link" href="../index.html">🏠 GAME ZONE</a>
+      <a class="btn ghost hub-link" href="../index.html">🎡 SPIN THE WHEEL</a>
       <button class="btn ghost" id="btn-board-clear">🗑 CLEAR SCOREBOARD</button>
     </div>
   </div>
@@ -226,6 +230,7 @@
 <!-- Gamepad glove cursor -->
 <div id="gp-cursor" class="hidden">🧤</div>
 
-<script src="game.js?v=44"></script>
+<script src="game.js?v=48"></script>
+<script>if (window.FHSound) FHSound.attach(document.getElementById('btn-mute'));   /* one volume for the whole site */</script>
 </body>
 </html>
