@@ -269,15 +269,8 @@
   function showNameEntry() {
     nameValue = '';
     renderName();
-    /* quick-pick chips: names seen on this TV before */
-    const chips = $('name-chips');
-    chips.innerHTML = '';
-    for (const n of recentNames(8)) {
-      const c = document.createElement('button');
-      c.className = 'chip'; c.textContent = n;
-      c.addEventListener('click', () => { Sfx.click(); startTurn(n); });
-      chips.appendChild(c);
-    }
+    /* no quick-pick buttons of earlier names: every player types their own (or just presses START) */
+    $('name-chips').innerHTML = '';
     show('name');
   }
   $('name-cancel').addEventListener('click', showMain);
@@ -378,7 +371,7 @@
     idleSeconds++;
     if (current === 'attract') return;
     const limit = current === 'game' ? 60 : 30;
-    if (idleSeconds >= limit) showAttract();
+    if (idleSeconds >= limit) { if (current === 'summary') location.assign('../index.html'); else showAttract(); }   // a finished turn left alone goes back to the wheel
   }, 1000);
   const wake = () => { idleSeconds = 0; Sfx.init(); if (settings.music > 0 && !Music.playing()) { Music.setVolume(settings.music); Music.start(); } };
 

@@ -1749,7 +1749,7 @@
       mascot(finishedAll || rank <= 3 ? "cheer" : "happy", "mascot-result");
       clearTimeout(idleTimer);
       idleTimer = setTimeout(() => {
-        if (!$("result").classList.contains("hidden")) showHome();
+        if (!$("result").classList.contains("hidden")) location.assign("../index.html");   // back to the wheel
       }, 25000);
     };
     showResult();
