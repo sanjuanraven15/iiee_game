@@ -540,3 +540,12 @@ html, body {
 /* upright screens: SPACE / DELETE / CLEAR on one row, the big START key on its own row underneath */
 #stage.portrait .key-actions { flex-wrap: wrap; justify-content: center; gap: 22px; max-width: 1800px; }
 #stage.portrait .key-actions .key.go { flex-basis: 100%; min-width: 0; }
+
+/* ---------- scoreboard: the list scrolls inside the space left, the title and buttons always stay on screen ---------- */
+#stage #screen-scores { justify-content: flex-start; gap: 20px; padding: 30px 40px 40px; }
+#stage #screen-scores .screen-header, #stage #screen-scores .menu { flex: none; }
+#stage #screen-scores .score-table { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; }
+#stage #screen-scores .score-row .meta { white-space: nowrap; }
+#stage #screen-scores .menu.horizontal { gap: 22px; }
+#stage #screen-scores .menu.horizontal .btn { min-width: 0; }
+#stage #screen-scores .btn.armed { animation: pulse .5s infinite; }

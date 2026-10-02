@@ -57,6 +57,10 @@ function loadScores() {
       }
     }
   } catch (e) { scores = []; }
+  // one entry per name: if a name is on the board more than once (older saves), its latest turn stays
+  const latest = new Map();
+  for (const s of scores) { const old = latest.get(s.name); if (!old || s.date > old.date) latest.set(s.name, s); }
+  scores = [...latest.values()];
   scores.sort((a, b) => b.score - a.score);
   scores = scores.slice(0, SCORES_MAX);
   return scores;
@@ -70,6 +74,7 @@ function saveScores() {
 function addScore(entry) {
   const clean = { name: sanitizeName(entry.name), score: clampInt(entry.score, 0, 9999999), levels: clampInt(entry.levels, 0, 999),
     deaths: clampInt(entry.deaths, 0, 99999), seed: clampInt(entry.seed, 0, 4294967295), date: new Date().toISOString() };
+  scores = scores.filter(s => s.name !== clean.name);   // same name again: this turn replaces the old entry
   scores.push(clean);
   scores.sort((a, b) => b.score - a.score);
   scores = scores.slice(0, SCORES_MAX);

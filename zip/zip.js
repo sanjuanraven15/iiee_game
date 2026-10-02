@@ -46,12 +46,17 @@ const fmtPts = n => n.toLocaleString('en-US');
 
 /* ---------- scores ---------- */
 function loadScores() {
-  try { const raw = JSON.parse(localStorage.getItem(SCORES_KEY) || '[]'); return Array.isArray(raw) ? raw.filter(s => s && typeof s === 'object').map(s => ({ name: sanitizeName(s.name), score: Math.max(0, s.score | 0), level: Math.max(0, s.level | 0), date: String(s.date || '') })) : []; }
+  let list;
+  try { const raw = JSON.parse(localStorage.getItem(SCORES_KEY) || '[]'); list = Array.isArray(raw) ? raw.filter(s => s && typeof s === 'object').map(s => ({ name: sanitizeName(s.name), score: Math.max(0, s.score | 0), level: Math.max(0, s.level | 0), date: String(s.date || '') })) : []; }
   catch (e) { return []; }
+  // one entry per name: if a name is on the board more than once (older saves), its latest run stays
+  const latest = new Map();
+  for (const s of list) { const old = latest.get(s.name); if (!old || s.date > old.date) latest.set(s.name, s); }
+  return [...latest.values()].sort((a, b) => b.score - a.score);
 }
 function addScore(entry) {
-  const list = loadScores();
   const rec = { name: sanitizeName(entry.name), score: entry.score | 0, level: entry.level | 0, date: new Date().toISOString() };
+  const list = loadScores().filter(s => s.name !== rec.name);   // same name again: this run replaces the old entry
   list.push(rec);
   list.sort((a, b) => b.score - a.score);
   const top = list.slice(0, SCORES_MAX);

@@ -312,8 +312,23 @@
       row.innerHTML = `<div class="rank">#${i + 1}</div><div class="name">${s.name}</div><div class="meta">${s.levels} LVL · ${s.deaths} 💀</div><div class="pts">${fmtPts(s.score)}</div>`;
       table.appendChild(row);
     });
+    $('scores-clear').classList.toggle('hidden', !list.length);
     show('scores');
   }
+  /* clear the scoreboard: two taps within 4 s, so nobody wipes it by accident */
+  let clearArmed = null;
+  $('scores-clear').addEventListener('click', () => {
+    const b = $('scores-clear');
+    if (clearArmed) {
+      clearTimeout(clearArmed); clearArmed = null;
+      scores = []; saveScores();
+      b.textContent = '🗑 CLEAR SCOREBOARD'; b.classList.remove('armed');
+      showScores();
+      return;
+    }
+    b.textContent = '⚠ TAP AGAIN TO ERASE ALL'; b.classList.add('armed');
+    clearArmed = setTimeout(() => { clearArmed = null; b.textContent = '🗑 CLEAR SCOREBOARD'; b.classList.remove('armed'); }, 4000);
+  });
   $('scores-back').addEventListener('click', showMain);
   $('scores-play').addEventListener('click', showNameEntry);
 

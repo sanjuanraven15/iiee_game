@@ -1715,7 +1715,8 @@
     document.body.classList.remove("boom-body");
     const bonus = finishedAll ? timeLeft * 10 : 0;
     const score = cleared * 100 + bonus;
-    const board = loadBoard();
+    const sameName = (a, b) => String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+    const board = loadBoard().filter((e) => !sameName(e.name, playerName)); // same name again: this turn replaces the old entry
     const entry = { name: playerName, score, levels: cleared, t: Date.now() };
     board.push(entry);
     board.sort((a, b) => b.score - a.score || a.t - b.t);
@@ -1821,11 +1822,20 @@
   }
   let idleTimer = null;
   function loadBoard() {
+    let list;
     try {
-      return JSON.parse(localStorage.getItem(BOARD_KEY) || "[]");
+      list = JSON.parse(localStorage.getItem(BOARD_KEY) || "[]");
     } catch (e) {
       return [];
     }
+    if (!Array.isArray(list)) return [];
+    // one entry per name: if a name is on the board more than once (older saves), its latest turn stays
+    const latest = new Map();
+    list.forEach((e) => {
+      const k = String(e.name || "").trim().toLowerCase();
+      if (!latest.has(k) || (e.t || 0) > (latest.get(k).t || 0)) latest.set(k, e);
+    });
+    return [...latest.values()].sort((a, b) => b.score - a.score || a.t - b.t);
   }
   function showBoard(highlightName) {
     const board = loadBoard().slice(0, 10);
